@@ -1,0 +1,16 @@
+dziala3 
+create_table 10 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.031719 ms
+search_directory /home \*.txt sys_time: 960.000000 ms, user_time: 700.000000 ms , real_time: 1684.676758 ms
+add_to_memory sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000734 ms
+remove_block 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000754 ms
+add_to_memory sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000410 ms
+add_to_memory sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000381 ms
+search_directory /home/Dokumenty/Programy/SysOpy/ main.c sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 1.282135 ms
+add_to_memory sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000708 ms
+add_to_memory sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000429 ms
+remove_block 1 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000594 ms
+remove_block 2 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000394 ms
+remove_block 3 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000391 ms
+search_directory / \* sys_time: 2780.000000 ms, user_time: 1680.000000 ms , real_time: 4489.333728 ms
+add_to_memory sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000678 ms
+remove_block 1 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000750 ms
