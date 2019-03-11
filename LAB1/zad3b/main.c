@@ -186,7 +186,6 @@ int main(int argc, char** argv){
         free_memory(ptr);
         return -2;
       }
-
     }
 
     free_memory(ptr);

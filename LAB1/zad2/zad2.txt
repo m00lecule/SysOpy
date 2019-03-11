@@ -1,0 +1,16 @@
+create_table 10 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.005103 ms
+search_directory /home \*.txt sys_time: 1000.000000 ms, user_time: 700.000000 ms , real_time: 1729.629540 ms
+add_to_memory size: 2554830 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 1.065009 ms
+add_to_memory size: 2554830 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.929964 ms
+search_directory /home/michald \* sys_time: 1330.000000 ms, user_time: 790.000000 ms , real_time: 2190.817328 ms
+remove_block 0, size: 2554830 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.368454 ms
+remove_block 1, size: 2554830 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.311163 ms
+add_to_memory size: 122965551 sys_time: 50.000000 ms, user_time: 0.000000 ms , real_time: 47.610499 ms
+add_to_memory size: 122965551 sys_time: 50.000000 ms, user_time: 0.000000 ms , real_time: 50.486354 ms
+search_directory /home/michald/Dokumenty/Programy/SysOpy \* sys_time: 20.000000 ms, user_time: 10.000000 ms , real_time: 55.328214 ms
+remove_block 2 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.004185 ms
+remove_block 3 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.002430 ms
+add_to_memory size: 9083 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.068436 ms
+add_to_memory size: 9083 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.040599 ms
+remove_block 0, size: 122965551 sys_time: 0.000000 ms, user_time: 20.000000 ms , real_time: 27.044624 ms
+remove_block 1, size: 122965551 sys_time: 10.000000 ms, user_time: 20.000000 ms , real_time: 15.838999 ms

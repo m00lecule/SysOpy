@@ -11,7 +11,13 @@
 
 #ifdef DYNAMIC
 #include <dlfcn.h>
+typedef struct MemoryArray{
+  char** blk;
+  int size;
+}MemoryArray;
 #endif
+
+FILE * file;
 
 #ifndef DYNAMIC
 #include "findResultLib.h"
@@ -63,8 +69,9 @@ void print_time(char* header ,struct timespec* starttime, struct timespec* endti
     sys_time*=1000;
     user_time*=1000;
 
-    sprintf(buff,strcat(header,"sys_time: %f ms, user_time: %f ms , real_time: %f ms"),sys_time,user_time,real_time);
+    sprintf(buff,strcat(header,"sys_time: %f ms, user_time: %f ms , real_time: %f ms \t"),sys_time,user_time,real_time);
     printf("%s\n",buff);
+    fprintf(file, "%s\n",buff );
 }
 
 int main(int argc, char** argv){
@@ -73,9 +80,10 @@ int main(int argc, char** argv){
     load_library();
   #endif
 
+  file = fopen(argv[1], argv[2]);
 
 
-  int i=1;
+  int i=3;
   struct MemoryArray * ptr = NULL;
   struct tms start_tms, end_tms;
   struct timespec start_ts, end_ts;
@@ -142,25 +150,33 @@ int main(int argc, char** argv){
           free_memory(ptr);
           return -2;
         }
+        char buff[128];
+
+        if(ptr->blk[index]!=NULL){
+          sprintf(buff,"remove_block %s, size: %ld ",argv[i+1],strlen(ptr->blk[index])*sizeof(char));
+        }
+        else{
+          sprintf(buff,"remove_block %s ",argv[i+1]);
+        }
 
         reset_index(ptr,index);
         times(&end_tms);
         clock_gettime(CLOCK_REALTIME,&end_ts);
 
-        char buff[128];
-
-        sprintf(buff,"remove_block %s ",argv[i+1]);
-
         print_time(buff,&start_ts,&end_ts,&start_tms,&end_tms);
 
         i+=2;
       }else if(strcmp(argv[i],"add_to_memory")==0){
-        fetch_from_tmp(ptr);
+        int index = fetch_from_tmp(ptr);
 
         times(&end_tms);
         clock_gettime(CLOCK_REALTIME,&end_ts);
 
-        char buff[] = "add_to_memory ";
+        char buff[128];
+        if(index >=0)
+          sprintf(buff,"add_to_memory size: %ld ",strlen(ptr->blk[index])*sizeof(char));
+        else
+          strcpy(buff,"add_to_memory failed");
 
         print_time(buff,&start_ts,&end_ts,&start_tms,&end_tms);
         i+=1;
@@ -170,8 +186,10 @@ int main(int argc, char** argv){
         free_memory(ptr);
         return -2;
       }
+
     }
 
     free_memory(ptr);
+    fclose(file);
   return 0;
 }

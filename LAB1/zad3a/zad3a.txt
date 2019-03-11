@@ -1,0 +1,54 @@
+
+ STATIC 
+
+create_table 10 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.002744 ms 	
+search_directory /home/ \*.txt sys_time: 910.000000 ms, user_time: 770.000000 ms , real_time: 1706.514928 ms 	
+add_to_memory size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.980182 ms 	
+remove_block 0, size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.213106 ms 	
+add_to_memory size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.877130 ms 	
+add_to_memory size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.856801 ms 	
+search_directory /home/Dokumenty/Programy/SysOpy/ main.c sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 2.096037 ms 	
+add_to_memory size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.058494 ms 	
+add_to_memory size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.004173 ms 	
+remove_block 3, size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.001062 ms 	
+remove_block 0, size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.251005 ms 	
+remove_block 2, size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000676 ms 	
+search_directory / \* sys_time: 3270.000000 ms, user_time: 2010.000000 ms , real_time: 5486.074903 ms 	
+add_to_memory size: 219362965 sys_time: 100.000000 ms, user_time: 0.000000 ms , real_time: 105.403496 ms 	
+remove_block 1, size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.507944 ms 	
+
+ DYNAMIC 
+
+create_table 10 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.003167 ms 	
+search_directory /home/ \*.txt sys_time: 1030.000000 ms, user_time: 670.000000 ms , real_time: 1714.400228 ms 	
+add_to_memory size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 1.033570 ms 	
+remove_block 0, size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.221565 ms 	
+add_to_memory size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.896479 ms 	
+add_to_memory size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.931619 ms 	
+search_directory /home/Dokumenty/Programy/SysOpy/ main.c sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 2.179455 ms 	
+add_to_memory size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.052979 ms 	
+add_to_memory size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.016547 ms 	
+remove_block 3, size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.001081 ms 	
+remove_block 0, size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.243725 ms 	
+remove_block 2, size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000672 ms 	
+search_directory / \* sys_time: 3220.000000 ms, user_time: 1990.000000 ms , real_time: 5428.541596 ms 	
+add_to_memory size: 219280844 sys_time: 110.000000 ms, user_time: 0.000000 ms , real_time: 108.230986 ms 	
+remove_block 1, size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.437090 ms 	
+
+ SHARED 
+
+create_table 10 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.006260 ms 	
+search_directory /home/ \*.txt sys_time: 920.000000 ms, user_time: 770.000000 ms , real_time: 1710.507572 ms 	
+add_to_memory size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 1.014085 ms 	
+remove_block 0, size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.211012 ms 	
+add_to_memory size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.935344 ms 	
+add_to_memory size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.879535 ms 	
+search_directory /home/Dokumenty/Programy/SysOpy/ main.c sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 2.043244 ms 	
+add_to_memory size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.030861 ms 	
+add_to_memory size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.022253 ms 	
+remove_block 3, size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.001190 ms 	
+remove_block 0, size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.310653 ms 	
+remove_block 2, size: 0 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.000796 ms 	
+search_directory / \* sys_time: 3240.000000 ms, user_time: 2020.000000 ms , real_time: 5417.546676 ms 	
+add_to_memory size: 219280598 sys_time: 100.000000 ms, user_time: 0.000000 ms , real_time: 104.448399 ms 	
+remove_block 1, size: 2554704 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.411336 ms 	

@@ -65,16 +65,17 @@ int fetch_from_tmp(MemoryArray* frt){
     return -4;
 
   for(int i=0;i<frt->size;++i)
-    if(frt->blk[i]){
-      FILE *f = fopen(strcat(filename,".tmp"), "r");
-       if (f)
+    if(frt->blk[i]==NULL){
+
+      FILE *f = fopen("temporary.tmp", "r");
+       if(f==NULL){
            return -2;
+         }
 
       fseek(f, 0, SEEK_END);
       int size=ftell(f);
 
       frt->blk[i] = (char*)calloc(size,sizeof(char));
-
       fseek(f,0,SEEK_SET);
       fread(frt->blk[i],sizeof(char),size,f);
       fclose(f);
@@ -96,7 +97,7 @@ void exec_find(){
     return;
   }
 
-  sprintf(buff,"find %s -name %s 1>%s.tmp 2>/dev/null",dir,filename,filename);
+  sprintf(buff,"find %s -name %s 1>temporary.tmp 2>/dev/null",dir,filename);
   system(buff);
 }
 
