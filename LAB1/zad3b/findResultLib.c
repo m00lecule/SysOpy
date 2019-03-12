@@ -59,7 +59,7 @@ void set_directory(const char * dr){
     strcpy(dir,dr);
 }
 
-int fetch_from_tmp(MemoryArray* frt){
+int fetch_from_tmp(MemoryArray* frt,const char* temp_file){
 
   if(frt==NULL)
     return -4;
@@ -67,7 +67,10 @@ int fetch_from_tmp(MemoryArray* frt){
   for(int i=0;i<frt->size;++i)
     if(frt->blk[i]==NULL){
 
-      FILE *f = fopen("temporary.tmp", "r");
+      char buff[128];
+      sprintf(buff,"%s.tmp",temp_file);
+
+      FILE *f = fopen(buff, "r");
        if(f==NULL){
            return -2;
          }
@@ -84,7 +87,7 @@ int fetch_from_tmp(MemoryArray* frt){
   return -1;
 }
 
-void exec_find(){
+void exec_find(const char* temp_file){
   char buff[128];
 
   if(filename==NULL){
@@ -97,7 +100,7 @@ void exec_find(){
     return;
   }
 
-  sprintf(buff,"find %s -name %s 1>temporary.tmp 2>/dev/null",dir,filename);
+  sprintf(buff,"find %s -name %s 1>%s.tmp 2>/dev/null",dir,filename,temp_file);
   system(buff);
 }
 

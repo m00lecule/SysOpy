@@ -20,10 +20,10 @@ void set_filename(const char *);
 void set_directory(const char *);
 
 //wczytywanie zawartości pliku tymczasowego do pamięci RAM
-int fetch_from_tmp(struct MemoryArray*);
+int fetch_from_tmp(struct MemoryArray*,const char*);
 
 //napisanie obecenego pliku tymczasowego nowym zapytaniem
-void exec_find();
+void exec_find(const char*);
 
 //zwolenie bloku pamięci w strukturze MemoryArray pod konkretnym indeksem
 void reset_index(struct MemoryArray* ,int);

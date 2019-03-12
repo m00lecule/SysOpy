@@ -1,6 +1,6 @@
 CC = gcc -Wall -std=gnu11
 
-ARGS = a+ create_table 10 search_directory /home \\*.txt add_to_memory add_to_memory add_to_memory search_directory /home/michald \\* remove_block 0 remove_block 1 add_to_memory add_to_memory add_to_memory search_directory /home/michald/Dokumenty/Programy/SysOpy \\*  remove_block 2 remove_block 3 add_to_memory add_to_memory add_to_memory remove_block 0 remove_block 1
+ARGS = a+ create_table 10 search_directory /home \\*.txt home add_to_memory home add_to_memory home add_to_memory home search_directory /home/michald \\* homemichal remove_block 0 remove_block 1 add_to_memory homemichal add_to_memory homemichal add_to_memory homemichal search_directory /home/michald/Dokumenty/Programy/SysOpy \\* sysopy  remove_block 2 remove_block 3 add_to_memory sysopy add_to_memory sysopy add_to_memory sysopy remove_block 0 remove_block 1
 LOG = results3a.txt
 
 all_static: main.o static
@@ -28,8 +28,8 @@ clean:
 	rm -f *.o *.a *.so *.tmp main
 
 test:
-		rm -f $(LOG)
-		for type in static shared dynamic; do \
+		@rm -f $(LOG)
+		@for type in static shared dynamic; do \
 			make clean ;\
 			make all_$$type ;\
 			echo "\n$$type \n" >> $(LOG) ;\
@@ -37,4 +37,4 @@ test:
 			./main $(LOG) $(ARGS) ;\
 			echo "\n" ;\
 		done
-		make clean
+		@make clean

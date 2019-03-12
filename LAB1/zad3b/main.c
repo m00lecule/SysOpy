@@ -27,8 +27,8 @@ FILE * file;
   struct MemoryArray* (*init_memory_array)(int);
   void (*set_filename)(const char *);
   void (*set_directory)(const char *);
-  int (*fetch_from_tmp)(struct MemoryArray*);
-  void (*exec_find)(void);
+  int (*fetch_from_tmp)(struct MemoryArray*, const char*);
+  void (*exec_find)(const char*);
   void (*reset_index)(struct MemoryArray*, int);
   void (*free_memory)(struct MemoryArray*);
 
@@ -41,8 +41,8 @@ FILE * file;
     init_memory_array = (struct MemoryArray* (*) (int))dlsym(handle,"init_memory_array");
     set_filename = (void (*) (const char *))dlsym(handle,"set_filename");
     set_directory = (void (*)(const char *))dlsym(handle,"set_directory");
-    fetch_from_tmp = (int (*)(struct MemoryArray*))dlsym(handle,"fetch_from_tmp");
-    exec_find = (void (*)(void))dlsym(handle,"exec_find");
+    fetch_from_tmp = (int (*)(struct MemoryArray*,const char*))dlsym(handle,"fetch_from_tmp");
+    exec_find = (void (*)(const char*))dlsym(handle,"exec_find");
     reset_index = (void (*)(struct MemoryArray*, int))dlsym(handle,"reset_index");
     free_memory = (void (*)(struct MemoryArray* ))dlsym(handle,"free_memory");
 
@@ -69,7 +69,7 @@ void print_time(char* header ,struct timespec* starttime, struct timespec* endti
     sys_time*=1000;
     user_time*=1000;
 
-    sprintf(buff,strcat(header,"sys_time: %f ms, user_time: %f ms , real_time: %f ms"),sys_time,user_time,real_time);
+    sprintf(buff,strcat(header,"sys_time: %f ms, user_time: %f ms , real_time: %f ms \t"),sys_time,user_time,real_time);
     printf("%s\n",buff);
     fprintf(file, "%s\n",buff );
 }
@@ -122,15 +122,14 @@ int main(int argc, char** argv){
         i+=2;
       }else if(strcmp(argv[i],"search_directory")==0){
 
-        if(i+2>argc){
+        if(i+3>argc){
           free_memory(ptr);
           return -5;
         }
 
         set_filename(argv[i+2]);
         set_directory(argv[i+1]);
-        exec_find();
-
+        exec_find(argv[i+3]);
 
         times(&end_tms);
         clock_gettime(CLOCK_REALTIME,&end_ts);
@@ -140,7 +139,7 @@ int main(int argc, char** argv){
         sprintf(buff,"search_directory %s %s ",argv[i+1],argv[i+2]);
 
         print_time(buff,&start_ts,&end_ts,&start_tms,&end_tms);
-          i=i+3;
+          i+=4;
       }else if(strcmp(argv[i],"remove_block")==0){
 
         int index=0;
@@ -167,25 +166,32 @@ int main(int argc, char** argv){
 
         i+=2;
       }else if(strcmp(argv[i],"add_to_memory")==0){
-        int index = fetch_from_tmp(ptr);
+
+        if(i+1>=argc){
+          free_memory(ptr);
+          return -2;
+        }
+
+        int index = fetch_from_tmp(ptr,argv[i+1]);
 
         times(&end_tms);
         clock_gettime(CLOCK_REALTIME,&end_ts);
 
         char buff[128];
         if(index >=0)
-          sprintf(buff,"add_to_memory size: %ld ",strlen(ptr->blk[index])*sizeof(char));
+          sprintf(buff,"add_to_memory %s.tmp size: %ld ",argv[i+1],strlen(ptr->blk[index])*sizeof(char));
         else
           strcpy(buff,"add_to_memory failed");
 
         print_time(buff,&start_ts,&end_ts,&start_tms,&end_tms);
-        i+=1;
+        i+=2;
       }else{
         printf("Wrong argument: %s\n", argv[i]);
-        printf("List of arguments:\n - create_table (int)size \n - search_directory (text)root_directory (text)filename \n - remove_index (unsigned int)index \n add_to_memory\n ");
+        printf("List of arguments:\n - create_table (int)size \n - search_directory (text)root_directory (text)filename (text)output temporary filename \n - remove_index (unsigned int)index \n - add_to_memory (text)output temporary filename\n ");
         free_memory(ptr);
         return -2;
       }
+
     }
 
     free_memory(ptr);

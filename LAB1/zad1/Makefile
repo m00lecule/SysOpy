@@ -1,5 +1,8 @@
 CC = gcc -Wall -std=gnu11
 
+all: static shared
+	rm *.o
+
 static:
 	$(CC) -c findResultLib.c -o FindResultLib.o
 	ar rcs libfindresult.a FindResultLib.o

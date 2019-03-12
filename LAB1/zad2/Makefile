@@ -1,11 +1,11 @@
 CC = gcc -Wall -std=gnu11
-ARGS = w create_table 10 search_directory /home \\*.txt add_to_memory add_to_memory search_directory /home/michald \\* remove_block 0 remove_block 1 add_to_memory add_to_memory search_directory /home/michald/Dokumenty/Programy/SysOpy \\*  remove_block 2 remove_block 3 add_to_memory add_to_memory remove_block 0 remove_block 1
+ARGS = w create_table 10 search_directory /home \\*.txt home add_to_memory home add_to_memory home add_to_memory home search_directory /home/michald \\* homemichal remove_block 0 remove_block 1 add_to_memory homemichal add_to_memory homemichal add_to_memory homemichal search_directory /home/michald/Dokumenty/Programy/SysOpy \\* sysopy  remove_block 2 remove_block 3 add_to_memory sysopy add_to_memory sysopy add_to_memory sysopy remove_block 0 remove_block 1
 LOG = zad2.txt
 
 test: all
-	$(echo "\n")
+	@echo "\n"
 	./main $(LOG) $(ARGS)
-	$(echo "\n")
+	@echo "\n"
 	make clean
 
 all: main.o static
