@@ -1,19 +1,19 @@
-create_table 10 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.003143 ms 	
-search_directory /home \*.txt sys_time: 1150.000000 ms, user_time: 760.000000 ms , real_time: 1934.628358 ms 	
-add_to_memory home.tmp size: 2555187 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 1.057366 ms 	
-add_to_memory home.tmp size: 2555187 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.970860 ms 	
-add_to_memory home.tmp size: 2555187 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.981924 ms 	
-search_directory /home/michald \* sys_time: 1280.000000 ms, user_time: 870.000000 ms , real_time: 2158.223447 ms 	
-remove_block 0, size: 2555187 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.351850 ms 	
-remove_block 1, size: 2555187 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.306175 ms 	
-add_to_memory homemichal.tmp size: 123031341 sys_time: 40.000000 ms, user_time: 0.000000 ms , real_time: 45.063733 ms 	
-add_to_memory homemichal.tmp size: 123031341 sys_time: 40.000000 ms, user_time: 0.000000 ms , real_time: 45.591337 ms 	
-add_to_memory homemichal.tmp size: 123031341 sys_time: 60.000000 ms, user_time: 0.000000 ms , real_time: 54.563902 ms 	
-search_directory /home/michald/Dokumenty/Programy/SysOpy \* sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 16.117175 ms 	
-remove_block 2, size: 2555187 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.852513 ms 	
-remove_block 3, size: 123031341 sys_time: 10.000000 ms, user_time: 10.000000 ms , real_time: 19.062489 ms 	
-add_to_memory sysopy.tmp size: 13939 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.061136 ms 	
-add_to_memory sysopy.tmp size: 13939 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.010599 ms 	
-add_to_memory sysopy.tmp size: 13939 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.022158 ms 	
-remove_block 0, size: 123031341 sys_time: 0.000000 ms, user_time: 20.000000 ms , real_time: 16.199285 ms 	
-remove_block 1, size: 123031341 sys_time: 10.000000 ms, user_time: 10.000000 ms , real_time: 15.101744 ms 	
+create_table 10 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.006209 ms 	
+search_directory /home \*.txt sys_time: 970.000000 ms, user_time: 760.000000 ms , real_time: 1750.730810 ms 	
+add_to_memory home.tmp size: 2555534 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.953743 ms 	
+add_to_memory home.tmp size: 2555534 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.976483 ms 	
+add_to_memory home.tmp size: 2555534 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.913956 ms 	
+search_directory /home/michald \* sys_time: 1040.000000 ms, user_time: 790.000000 ms , real_time: 1842.138420 ms 	
+remove_block 0, size: 2555534 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.408114 ms 	
+remove_block 1, size: 2555534 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.320528 ms 	
+add_to_memory homemichal.tmp size: 123199646 sys_time: 40.000000 ms, user_time: 0.000000 ms , real_time: 45.808324 ms 	
+add_to_memory homemichal.tmp size: 123199646 sys_time: 50.000000 ms, user_time: 0.000000 ms , real_time: 48.235175 ms 	
+add_to_memory homemichal.tmp size: 123199646 sys_time: 40.000000 ms, user_time: 0.000000 ms , real_time: 45.032276 ms 	
+search_directory /home/michald/Dokumenty/Programy/SysOpy \* sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 9.558801 ms 	
+remove_block 2, size: 2555534 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.330576 ms 	
+remove_block 3, size: 123199646 sys_time: 10.000000 ms, user_time: 10.000000 ms , real_time: 10.555679 ms 	
+add_to_memory sysopy.tmp size: 14238 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.043963 ms 	
+add_to_memory sysopy.tmp size: 14238 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.010130 ms 	
+add_to_memory sysopy.tmp size: 14238 sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.010370 ms 	
+remove_block 0, size: 123199646 sys_time: 0.000000 ms, user_time: 10.000000 ms , real_time: 13.381226 ms 	
+remove_block 1, size: 123199646 sys_time: 0.000000 ms, user_time: 10.000000 ms , real_time: 14.736751 ms 	

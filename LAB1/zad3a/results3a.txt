@@ -1,3 +1,4 @@
+Roznice pomiedzy rodzajem laczenia z bibioteka sa na tyle male i spontatniczne (nie potrafie znalezc odwzorowania typ polaczenia - dodatkowy/krotszy czas wykonania) wszystkie zawieraja sie w odchyleniu mniejzym niz 10% wartosci sredniej, natomiast znaczna wiekzosc w mniej niz 5% wartosci sredniej. Nalezy dodac ze przeanalizowalem stosunkowo malo operacji, wiec w celu zbadania tej zaleznosci powienienem wkonac tysiace prob. 
 
 static 
 

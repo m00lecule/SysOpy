@@ -25,7 +25,7 @@ static:
 	ar rcs libfindresult.a FindResultLib.o
 
 clean:
-	rm -f *.o *.a *.so *.tmp main
+	rm -f *.o *.a *.tmp *.so main
 
 test:
 		@rm -f $(LOG)

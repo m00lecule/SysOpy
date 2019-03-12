@@ -6,6 +6,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #define BILLION 1000000000
 
@@ -17,7 +18,16 @@ typedef struct MemoryArray{
 }MemoryArray;
 #endif
 
-FILE * file;
+FILE * file = NULL;
+
+int is_numeric (const char * s)
+{
+    if (s == NULL || *s == '\0' || isspace(*s))
+      return 0;
+    char * p;
+    strtod (s, &p);
+    return *p == '\0';
+}
 
 #ifndef DYNAMIC
 #include "findResultLib.h"
@@ -52,6 +62,14 @@ FILE * file;
   }
 #endif
 
+void print_error(const char * str){
+  printf("Wrong argument: %s\n", str);
+  printf("List of arguments:\n - create_table (int)size \n - search_directory (text)root_directory (text)filename (text)output temporary filename \n - remove_index (unsigned int)index \n - add_to_memory (text)output temporary filename\n ");
+  if(file != NULL){
+    fclose(file);
+  }
+}
+
 
 void print_time(char* header ,struct timespec* starttime, struct timespec* endtime, const struct tms * start, const struct tms* end){
     double sys_time = (double) (end->tms_stime - start->tms_stime) / sysconf(_SC_CLK_TCK);
@@ -82,7 +100,6 @@ int main(int argc, char** argv){
 
   file = fopen(argv[1], argv[2]);
 
-
   int i=3;
   struct MemoryArray * ptr = NULL;
   struct tms start_tms, end_tms;
@@ -98,11 +115,13 @@ int main(int argc, char** argv){
         free_memory(ptr);
 
         int size=0;
-        if(i+1<argc){
+        if(i+1<argc && (is_numeric(argv[i+1]) != 0)){
           size = atoi(argv[i+1]);
         }
-        else
+        else{
+          print_error(argv[i+1]);
           return -1;
+        }
 
         ptr=init_memory_array(size);
 
@@ -123,6 +142,7 @@ int main(int argc, char** argv){
       }else if(strcmp(argv[i],"search_directory")==0){
 
         if(i+3>argc){
+          print_error(argv[i]);
           free_memory(ptr);
           return -5;
         }
@@ -140,12 +160,13 @@ int main(int argc, char** argv){
 
         print_time(buff,&start_ts,&end_ts,&start_tms,&end_tms);
           i+=4;
-      }else if(strcmp(argv[i],"remove_block")==0){
+      }else if(strcmp(argv[i],"remove_block") == 0){
 
         int index=0;
-        if(i+1<argc)
+        if(i+1<argc && (is_numeric(argv[i+1]) != 0))
           index = atoi(argv[i+1]);
         else{
+          print_error(argv[i+1]);
           free_memory(ptr);
           return -2;
         }
@@ -163,11 +184,12 @@ int main(int argc, char** argv){
         clock_gettime(CLOCK_REALTIME,&end_ts);
 
         print_time(buff,&start_ts,&end_ts,&start_tms,&end_tms);
-
         i+=2;
+
       }else if(strcmp(argv[i],"add_to_memory")==0){
 
         if(i+1>=argc){
+          print_error(argv[i]);
           free_memory(ptr);
           return -2;
         }
@@ -186,12 +208,11 @@ int main(int argc, char** argv){
         print_time(buff,&start_ts,&end_ts,&start_tms,&end_tms);
         i+=2;
       }else{
-        printf("Wrong argument: %s\n", argv[i]);
-        printf("List of arguments:\n - create_table (int)size \n - search_directory (text)root_directory (text)filename (text)output temporary filename \n - remove_index (unsigned int)index \n - add_to_memory (text)output temporary filename\n ");
+        char buff[] = "unrecognized argument";
+        print_error(buff);
         free_memory(ptr);
         return -2;
       }
-
     }
 
     free_memory(ptr);

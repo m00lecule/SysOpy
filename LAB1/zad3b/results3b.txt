@@ -1,3 +1,4 @@
+Statystycznie im wyzszy poziom optymalizacji tym wykonanie kodu jest krotsze, niestety zaoszczedzony czas nie rzuca na kolana przy tej implementacji. Wybor trybu linkowania nie mial duzego wyplywu na wynik koncowy.
 
  static O0 
 
