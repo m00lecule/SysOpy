@@ -100,6 +100,11 @@ int main(int argc, char** argv){
 
   file = fopen(argv[1], argv[2]);
 
+  if(file == NULL){
+	printf("Wrong raport file or open flag\n");
+	return -2;
+}
+
   int i=3;
   struct MemoryArray * ptr = NULL;
   struct tms start_tms, end_tms;
