@@ -13,9 +13,18 @@ extern int errno;
 static char MODE[3] = {"sys"};
 
 void generate(int count, int format, const char * file){
-  char buff[128];
-  sprintf(buff,"head -c %d /dev/urandom > %s",count*format,file);
-  system(buff);
+
+  int desc = open(file,O_WRONLY|O_CREAT,0666);
+  char* buff2 = (char*)malloc(format*sizeof(char));
+
+  for(int i=0 ; i<count ; ++i){
+    for(int j = 0 ; j < format ; ++j){
+        buff2[j] = (char)rand()%256;
+    }
+    write(desc,buff2,format);
+  }
+
+  free(buff2);
 }
 
 int set_mode(const char * name){
@@ -35,8 +44,6 @@ int copy( const char * from, const char * to , int count, int format){
     return -2;
   }
 
-
-  printf("%s\n",MODE);
 
   if(strcmp(MODE,"sys")==0){
     int desc_from = open(from,O_RDONLY);
@@ -61,7 +68,7 @@ int copy( const char * from, const char * to , int count, int format){
     FILE * desc_from = fopen(from,"r+");
     if(desc_from == NULL)
       return -5;
-      
+
     FILE * desc_to = fopen(to,"w");
 
     if(desc_to==NULL)
@@ -126,14 +133,14 @@ int sort( const char * file, int count ,int format){
         fread(buff2,1,format,desc2);
 
         if(buff[0] < buff2[0]){
-          fseek(desc2,-format,SEEK_CUR);
+          fseek(desc2,-format,1);
           fwrite(buff,1,format,desc2);
 
-          fseek(desc,-format,SEEK_CUR);
+          fseek(desc,-format,1);
           fwrite(buff2,1,format,desc);
 
-          fseek(desc,-format,SEEK_CUR);
-          fread(desc,1,format,0);
+          fseek(desc,-format,1);
+          fread(buff,1,format,desc);
         }
       }
     }

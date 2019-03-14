@@ -1,4 +1,5 @@
 CC = gcc -Wall -std=gnu11
+LOG = wyniki.txt
 
 all: main.o filehandlerlib
 	$(CC) main.o libfilehandler.a -o main
@@ -12,3 +13,29 @@ filehandlerlib:
 
 clean:
 	rm -f *.o *.a main
+
+test:
+	make clean
+	make all
+	@for format in "1 6000 3000" \
+								"4 5000 3000" \
+	 							"512 5000 2000" \
+								"1024 4000 2000" \
+								"4096 3000 2000" \
+								"8192 3000 2000 "; do \
+		set -- $$format;\
+		./main generate origin_1 $$2 $$1 ;\
+		./main generate origin_2 $$3 $$1 ;\
+		for type in lib sys; do \
+		 echo $$type ;\
+		 ./main copy origin_1 origin_1_$$type $$2 $$1 $$type;\
+		 ./main copy origin_2 origin_2_$$type $$3 $$1 $$type;\
+		 ./main sort origin_1_$$type $$2 $$1 $$type;\
+		 ./main sort origin_2_$$type $$3 $$1 $$type;\
+		 rm origin_1_$$type;\
+		 rm origin_2_$$type;\
+			done	;\
+			echo "\n";\
+	 done
+	rm main origin_1 origin_2
+	make clean
