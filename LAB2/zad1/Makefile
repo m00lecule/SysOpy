@@ -37,5 +37,5 @@ test:
 			done	;\
 			echo "\n";\
 	 done
-	rm main origin_1 origin_2
+	rm origin_1 origin_2
 	make clean
