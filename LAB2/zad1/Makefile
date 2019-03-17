@@ -17,6 +17,7 @@ clean:
 test:
 	make clean
 	make all
+	rm -f wyniki.txt
 	@for format in "1 6000 3000" \
 								"4 5000 3000" \
 	 							"512 5000 2000" \
@@ -27,11 +28,11 @@ test:
 		./main generate origin_1 $$2 $$1 ;\
 		./main generate origin_2 $$3 $$1 ;\
 		for type in lib sys; do \
-		 echo $$type ;\
-		 ./main copy origin_1 origin_1_$$type $$2 $$1 $$type;\
-		 ./main copy origin_2 origin_2_$$type $$3 $$1 $$type;\
-		 ./main sort origin_1_$$type $$2 $$1 $$type;\
-		 ./main sort origin_2_$$type $$3 $$1 $$type;\
+		 echo "$$type \n ">> $(LOG) ;\
+		 ./main copy origin_1 origin_1_$$type $$2 $$1 $$type >> $(LOG);\
+		 ./main copy origin_2 origin_2_$$type $$3 $$1 $$type >> $(LOG);\
+		 ./main sort origin_1_$$type $$2 $$1 $$type >> $(LOG);\
+		 ./main sort origin_2_$$type $$3 $$1 $$type >> $(LOG);\
 		 rm origin_1_$$type;\
 		 rm origin_2_$$type;\
 			done	;\
