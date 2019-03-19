@@ -15,11 +15,11 @@ static char MODE[3] = {"sys"};
 void generate(int count, int format, const char * file){
 
   int desc = open(file,O_WRONLY|O_CREAT,0666);
-  char* buff2 = (char*)malloc(format*sizeof(char));
+  unsigned char* buff2 = ( unsigned char*)malloc(format*sizeof(char));
 
   for(int i=0 ; i<count ; ++i){
     for(int j = 0 ; j < format ; ++j){
-        buff2[j] = (char)rand()%256;
+        buff2[j] = (unsigned char)rand()%256;
     }
     write(desc,buff2,format);
   }
@@ -89,8 +89,8 @@ int copy( const char * from, const char * to , int count, int format){
 
 int sort( const char * file, int count ,int format){
 
-  char * buff = (char *)calloc(format,sizeof(char));
-  char * buff2 = (char *)calloc(format,sizeof(char));
+  unsigned char * buff = calloc(format,1);
+  unsigned char * buff2 = calloc(format,1);
 
   if(buff == NULL || buff2 == NULL)
     return -2;
@@ -99,6 +99,9 @@ int sort( const char * file, int count ,int format){
     int desc = open(file,O_RDWR);
     int desc2 = open(file,O_RDWR);
 
+    if(desc < 0 || desc2 < 0)
+      return -3;
+
     for(int i = 0 ; i < count - 1 ; ++i){
       read(desc,buff,format);
       lseek(desc2,(i+1)*format,SEEK_SET);
@@ -106,7 +109,7 @@ int sort( const char * file, int count ,int format){
       for( int j = i + 1 ; j < count ; ++j){
         read(desc2,buff2,format);
 
-        if(buff[0] < buff2[0]){
+        if((unsigned char)buff[0] >(unsigned char) buff2[0]){
           lseek(desc2,-format,SEEK_CUR);
           write(desc2,buff,format);
 
@@ -118,6 +121,9 @@ int sort( const char * file, int count ,int format){
         }
       }
     }
+
+    close(desc);
+    close(desc2);
   }else{
     FILE * desc = fopen(file,"r+");
     FILE * desc2 = fopen(file,"r+");
@@ -132,7 +138,7 @@ int sort( const char * file, int count ,int format){
       for( int j = i + 1 ; j < count ; ++ j){
         fread(buff2,1,format,desc2);
 
-        if(buff[0] < buff2[0]){
+        if((unsigned char) buff[0] > (unsigned char) buff2[0]){
           fseek(desc2,-format,1);
           fwrite(buff,1,format,desc2);
 
