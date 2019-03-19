@@ -27,7 +27,7 @@ void print_time(char* header ,struct timespec* starttime, struct timespec* endti
     sys_time*=1000;
     user_time*=1000;
 
-    sprintf(buff,strcat(header," sys_time: %f ms, user_time: %f ms , real_time: %f ms"),sys_time,user_time,real_time);
+    sprintf(buff,strcat(header," sys_time: %10f ms, user_time: %5f ms , real_time: %5f ms \t"),sys_time,user_time,real_time);
     printf("%s\n",buff);
 }
 

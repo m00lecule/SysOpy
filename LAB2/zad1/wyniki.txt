@@ -1,105 +1,72 @@
-
-FORMAT 1: kopiowanie systemowe trwa dużo dłużej, tak samo sortowanie
-FORMAT 4: kopiowanie systemowe trwa dużo dłużej, tak samo sortowanie
-FORMAT 512: kopiowanie systemowe trwa dużo dłużej, tak samo sortowanie
-FORMAT 1024: kopiowanie systemowe trwa 2 razy dłużej, sortowanie porównywalne
-FORMAT 4096: porównywalne czasy operacji
-FORMAT 8192: kopiowanie i sortowanie funkcjami systemowymi trwa o ok 5-10% krócej w prównaniu do funkcji bibliotecznych
-
-WNIOSEK: funkcje udostępnione przes system działają wydajniej przy dłuższych blokach pamięci.
-
-
-lib
-
-copy origin_1 origin_1_lib count: 6000 format: 1 lib sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.218885 ms
-copy origin_2 origin_2_lib count: 3000 format: 1 lib sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.166914 ms
-sort origin_1_lib count: 6000 format: 1 lib sys_time: 3260.000000 ms, user_time: 980.000000 ms , real_time: 4249.340384 ms
-sort origin_2_lib count: 3000 format: 1 lib sys_time: 1540.000000 ms, user_time: 490.000000 ms , real_time: 2042.040429 ms
-
-
-sys
-
-copy origin_1 origin_1_sys count: 6000 format: 1 sys sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 15.095288 ms
-copy origin_2 origin_2_sys count: 3000 format: 1 sys sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 8.136323 ms
-sort origin_1_sys count: 6000 format: 1 sys sys_time: 8610.000000 ms, user_time: 2130.000000 ms , real_time: 10752.104477 ms
-sort origin_2_sys count: 3000 format: 1 sys sys_time: 2620.000000 ms, user_time: 620.000000 ms , real_time: 3249.806146 ms
-
-
-lib
-
-copy origin_1 origin_1_lib count: 5000 format: 4 lib sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.200476 ms
-copy origin_2 origin_2_lib count: 3000 format: 4 lib sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 0.147568 ms
-sort origin_1_lib count: 5000 format: 4 lib sys_time: 2770.000000 ms, user_time: 750.000000 ms , real_time: 3534.338142 ms
-sort origin_2_lib count: 3000 format: 4 lib sys_time: 1600.000000 ms, user_time: 480.000000 ms , real_time: 2088.153317 ms
-
-
-sys
-
-copy origin_1 origin_1_sys count: 5000 format: 4 sys sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 11.044922 ms
-copy origin_2 origin_2_sys count: 3000 format: 4 sys sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 10.721960 ms
-sort origin_1_sys count: 5000 format: 4 sys sys_time: 6290.000000 ms, user_time: 1590.000000 ms , real_time: 7888.913281 ms
-sort origin_2_sys count: 3000 format: 4 sys sys_time: 2680.000000 ms, user_time: 650.000000 ms , real_time: 3338.664491 ms
-
-
-lib
-
-copy origin_1 origin_1_lib count: 5000 format: 512 lib sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 3.062834 ms
-copy origin_2 origin_2_lib count: 2000 format: 512 lib sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 1.206586 ms
-sort origin_1_lib count: 5000 format: 512 lib sys_time: 3570.000000 ms, user_time: 1090.000000 ms , real_time: 4671.467560 ms
-sort origin_2_lib count: 2000 format: 512 lib sys_time: 1230.000000 ms, user_time: 290.000000 ms , real_time: 1529.175551 ms
-
-
-sys
-
-copy origin_1 origin_1_sys count: 5000 format: 512 sys sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 18.329636 ms
-copy origin_2 origin_2_sys count: 2000 format: 512 sys sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 5.089557 ms
-sort origin_1_sys count: 5000 format: 512 sys sys_time: 6910.000000 ms, user_time: 1680.000000 ms , real_time: 8600.882619 ms
-sort origin_2_sys count: 2000 format: 512 sys sys_time: 1550.000000 ms, user_time: 270.000000 ms , real_time: 1829.856597 ms
-
-
-lib
-
-copy origin_1 origin_1_lib count: 4000 format: 1024 lib sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 4.750734 ms
-copy origin_2 origin_2_lib count: 2000 format: 1024 lib sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 1.999625 ms
-sort origin_1_lib count: 4000 format: 1024 lib sys_time: 3330.000000 ms, user_time: 860.000000 ms , real_time: 4206.446931 ms
-sort origin_2_lib count: 2000 format: 1024 lib sys_time: 1260.000000 ms, user_time: 310.000000 ms , real_time: 1582.612272 ms
-
-
-sys
-
-copy origin_1 origin_1_sys count: 4000 format: 1024 sys sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 10.697151 ms
-copy origin_2 origin_2_sys count: 2000 format: 1024 sys sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 5.354364 ms
-sort origin_1_sys count: 4000 format: 1024 sys sys_time: 4800.000000 ms, user_time: 1010.000000 ms , real_time: 5823.561491 ms
-sort origin_2_sys count: 2000 format: 1024 sys sys_time: 1540.000000 ms, user_time: 310.000000 ms , real_time: 1861.316299 ms
-
-
-lib
-
-copy origin_1 origin_1_lib count: 3000 format: 4096 lib sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 12.606522 ms
-copy origin_2 origin_2_lib count: 2000 format: 4096 lib sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 9.216075 ms
-sort origin_1_lib count: 3000 format: 4096 lib sys_time: 4370.000000 ms, user_time: 880.000000 ms , real_time: 5261.341365 ms
-sort origin_2_lib count: 2000 format: 4096 lib sys_time: 2230.000000 ms, user_time: 410.000000 ms , real_time: 2650.722008 ms
-
-
-sys
-
-copy origin_1 origin_1_sys count: 3000 format: 4096 sys sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 12.797081 ms
-copy origin_2 origin_2_sys count: 2000 format: 4096 sys sys_time: 0.000000 ms, user_time: 0.000000 ms , real_time: 9.908832 ms
-sort origin_1_sys count: 3000 format: 4096 sys sys_time: 4710.000000 ms, user_time: 720.000000 ms , real_time: 5437.165271 ms
-sort origin_2_sys count: 2000 format: 4096 sys sys_time: 2420.000000 ms, user_time: 340.000000 ms , real_time: 2782.230056 ms
-
-
-lib
-
-copy origin_1 origin_1_lib count: 3000 format: 8192 lib sys_time: 20.000000 ms, user_time: 0.000000 ms , real_time: 24.568256 ms
-copy origin_2 origin_2_lib count: 2000 format: 8192 lib sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 14.617485 ms
-sort origin_1_lib count: 3000 format: 8192 lib sys_time: 6450.000000 ms, user_time: 970.000000 ms , real_time: 7430.126303 ms
-sort origin_2_lib count: 2000 format: 8192 lib sys_time: 3280.000000 ms, user_time: 390.000000 ms , real_time: 3681.322708 ms
-
-
-sys
-
-copy origin_1 origin_1_sys count: 3000 format: 8192 sys sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 17.557315 ms
-copy origin_2 origin_2_sys count: 2000 format: 8192 sys sys_time: 10.000000 ms, user_time: 0.000000 ms , real_time: 12.268326 ms
-sort origin_1_sys count: 3000 format: 8192 sys sys_time: 6640.000000 ms, user_time: 680.000000 ms , real_time: 7333.646325 ms
-sort origin_2_sys count: 2000 format: 8192 sys sys_time: 3170.000000 ms, user_time: 340.000000 ms , real_time: 3514.899093 ms
+lib 
+ 
+copy origin_1 origin_1_lib count: 6000 format: 1 lib sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 0.277174 ms 	
+copy origin_2 origin_2_lib count: 3000 format: 1 lib sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 0.137531 ms 	
+sort origin_1_lib count: 6000 format: 1 lib sys_time: 3720.000000 ms, user_time: 1030.000000 ms , real_time: 4763.082010 ms 	
+sort origin_2_lib count: 3000 format: 1 lib sys_time: 1790.000000 ms, user_time: 470.000000 ms , real_time: 2269.864211 ms 	
+sys 
+ 
+copy origin_1 origin_1_sys count: 6000 format: 1 sys sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 12.446583 ms 	
+copy origin_2 origin_2_sys count: 3000 format: 1 sys sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 5.778430 ms 	
+sort origin_1_sys count: 6000 format: 1 sys sys_time: 9050.000000 ms, user_time: 2190.000000 ms , real_time: 11246.143942 ms 	
+sort origin_2_sys count: 3000 format: 1 sys sys_time: 2910.000000 ms, user_time: 650.000000 ms , real_time: 3579.480676 ms 	
+lib 
+ 
+copy origin_1 origin_1_lib count: 5000 format: 4 lib sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 0.480762 ms 	
+copy origin_2 origin_2_lib count: 3000 format: 4 lib sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 0.226861 ms 	
+sort origin_1_lib count: 5000 format: 4 lib sys_time: 3160.000000 ms, user_time: 970.000000 ms , real_time: 4141.084952 ms 	
+sort origin_2_lib count: 3000 format: 4 lib sys_time: 1790.000000 ms, user_time: 490.000000 ms , real_time: 2296.482966 ms 	
+sys 
+ 
+copy origin_1 origin_1_sys count: 5000 format: 4 sys sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 12.413281 ms 	
+copy origin_2 origin_2_sys count: 3000 format: 4 sys sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 10.157110 ms 	
+sort origin_1_sys count: 5000 format: 4 sys sys_time: 6730.000000 ms, user_time: 1530.000000 ms , real_time: 8267.571346 ms 	
+sort origin_2_sys count: 3000 format: 4 sys sys_time: 2900.000000 ms, user_time: 660.000000 ms , real_time: 3569.839407 ms 	
+lib 
+ 
+copy origin_1 origin_1_lib count: 5000 format: 512 lib sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 2.945356 ms 	
+copy origin_2 origin_2_lib count: 2000 format: 512 lib sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 1.792547 ms 	
+sort origin_1_lib count: 5000 format: 512 lib sys_time: 3950.000000 ms, user_time: 1200.000000 ms , real_time: 5159.936396 ms 	
+sort origin_2_lib count: 2000 format: 512 lib sys_time: 1250.000000 ms, user_time: 350.000000 ms , real_time: 1605.631112 ms 	
+sys 
+ 
+copy origin_1 origin_1_sys count: 5000 format: 512 sys sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 13.911177 ms 	
+copy origin_2 origin_2_sys count: 2000 format: 512 sys sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 5.863137 ms 	
+sort origin_1_sys count: 5000 format: 512 sys sys_time: 7020.000000 ms, user_time: 1510.000000 ms , real_time: 8542.206623 ms 	
+sort origin_2_sys count: 2000 format: 512 sys sys_time: 1710.000000 ms, user_time: 320.000000 ms , real_time: 2036.648363 ms 	
+lib 
+ 
+copy origin_1 origin_1_lib count: 4000 format: 1024 lib sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 4.740656 ms 	
+copy origin_2 origin_2_lib count: 2000 format: 1024 lib sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 2.413923 ms 	
+sort origin_1_lib count: 4000 format: 1024 lib sys_time: 3650.000000 ms, user_time: 1020.000000 ms , real_time: 4678.081402 ms 	
+sort origin_2_lib count: 2000 format: 1024 lib sys_time: 1440.000000 ms, user_time: 410.000000 ms , real_time: 1852.819562 ms 	
+sys 
+ 
+copy origin_1 origin_1_sys count: 4000 format: 1024 sys sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 12.856431 ms 	
+copy origin_2 origin_2_sys count: 2000 format: 1024 sys sys_time:   0.000000 ms, user_time: 0.000000 ms , real_time: 6.346902 ms 	
+sort origin_1_sys count: 4000 format: 1024 sys sys_time: 5070.000000 ms, user_time: 1190.000000 ms , real_time: 6267.605140 ms 	
+sort origin_2_sys count: 2000 format: 1024 sys sys_time: 1700.000000 ms, user_time: 340.000000 ms , real_time: 2050.732641 ms 	
+lib 
+ 
+copy origin_1 origin_1_lib count: 3000 format: 4096 lib sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 13.719316 ms 	
+copy origin_2 origin_2_lib count: 2000 format: 4096 lib sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 10.880909 ms 	
+sort origin_1_lib count: 3000 format: 4096 lib sys_time: 4560.000000 ms, user_time: 820.000000 ms , real_time: 5393.810773 ms 	
+sort origin_2_lib count: 2000 format: 4096 lib sys_time: 2330.000000 ms, user_time: 420.000000 ms , real_time: 2764.672540 ms 	
+sys 
+ 
+copy origin_1 origin_1_sys count: 3000 format: 4096 sys sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 14.262628 ms 	
+copy origin_2 origin_2_sys count: 2000 format: 4096 sys sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 10.098556 ms 	
+sort origin_1_sys count: 3000 format: 4096 sys sys_time: 4750.000000 ms, user_time: 650.000000 ms , real_time: 5433.929907 ms 	
+sort origin_2_sys count: 2000 format: 4096 sys sys_time: 2280.000000 ms, user_time: 320.000000 ms , real_time: 2618.526330 ms 	
+lib 
+ 
+copy origin_1 origin_1_lib count: 3000 format: 8192 lib sys_time:  20.000000 ms, user_time: 0.000000 ms , real_time: 24.477576 ms 	
+copy origin_2 origin_2_lib count: 2000 format: 8192 lib sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 17.264140 ms 	
+sort origin_1_lib count: 3000 format: 8192 lib sys_time: 6980.000000 ms, user_time: 890.000000 ms , real_time: 7874.862014 ms 	
+sort origin_2_lib count: 2000 format: 8192 lib sys_time: 3300.000000 ms, user_time: 510.000000 ms , real_time: 3821.823426 ms 	
+sys 
+ 
+copy origin_1 origin_1_sys count: 3000 format: 8192 sys sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 20.192926 ms 	
+copy origin_2 origin_2_sys count: 2000 format: 8192 sys sys_time:  10.000000 ms, user_time: 0.000000 ms , real_time: 12.522869 ms 	
+sort origin_1_sys count: 3000 format: 8192 sys sys_time: 7290.000000 ms, user_time: 680.000000 ms , real_time: 7995.887600 ms 	
+sort origin_2_sys count: 2000 format: 8192 sys sys_time: 3510.000000 ms, user_time: 400.000000 ms , real_time: 3918.960786 ms 	

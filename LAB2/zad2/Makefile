@@ -4,6 +4,7 @@ DIR = test_directory
 DIR_LIST = $(DIR)/{pictures/{2018,2019},documents/{public,private,shared,protected},movie/{titanic,lotr,jaws},music/{rock,pop,indie},gallery/{birthday,christmass,funeral}}
 FILE_LIST = $(DIR)/pictures/2018/zdj1.png $(DIR)/pictures/2019/zdj2.png $(DIR)/documents/public/book.pdf $(DIR)/documents/public/book2.pdf $(DIR)/documents/public/book3.pdf
 
+
 all_stat: stat_directorylib
 	$(CC) -c main.c -o main.o -D STAT
 	$(CC) main.o stat_directorylib.a -o main
