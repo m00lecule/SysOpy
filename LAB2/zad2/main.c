@@ -39,7 +39,10 @@ int main(int argc, char** argv){
     return -1;
   }
 
-  search(buff,mode,time_func);
+  if(search(buff,mode,time_func)<0){
+    printf("error occuerd during search");
+    return -1;
+  }
 
   free(buff);
 

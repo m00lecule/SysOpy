@@ -12,7 +12,7 @@ filehandlerlib:
 	ar rcs libfilehandler.a filehandler.o
 
 clean:
-	rm -f *.o *.a main
+	rm -f *.o *.a main origin_1 origin_2 origin_1_lib origin_2_lib origin_1_sys origin_2_lib
 
 test:
 	make clean
@@ -33,10 +33,10 @@ test:
 		 ./main copy origin_2 origin_2_$$type $$3 $$1 $$type >> $(LOG);\
 		 ./main sort origin_1_$$type $$2 $$1 $$type >> $(LOG);\
 		 ./main sort origin_2_$$type $$3 $$1 $$type >> $(LOG);\
-		 rm origin_1_$$type;\
-		 rm origin_2_$$type;\
 			done	;\
-			echo "\n";\
+		echo "\n";\
+		diff origin_1_sys origin_1_lib ;\
+		diff origin_2_sys origin_2_lib;\
+		rm -f origin_1_sys origin_1_lib origin_2_lib origin_2_sys;\
 	 done
-	rm origin_1 origin_2
 	make clean

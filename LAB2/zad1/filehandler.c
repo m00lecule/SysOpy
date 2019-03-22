@@ -89,8 +89,8 @@ int copy( const char * from, const char * to , int count, int format){
 
 int sort( const char * file, int count ,int format){
 
-  char * buff = (char *)calloc(format,sizeof(char));
-  char * buff2 = (char *)calloc(format,sizeof(char));
+  char * buff = calloc(format,sizeof(char));
+  char * buff2 = calloc(format,sizeof(char));
 
   if(buff == NULL || buff2 == NULL)
     return -2;
