@@ -12,6 +12,10 @@
 #include <sys/times.h>
 #include <time.h>
 #include <libgen.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 static enum State state = RAM;
 static char* file_buffer=NULL;
@@ -33,7 +37,7 @@ int begin_monitoring(const char * path , unsigned int sec_to_finish){
   while ( fgets ( buff, sizeof buff, file ) != NULL ){
       char* pch = strtok(buff," ");
 
-      if(pch){
+      if(pch==NULL){
         fclose(file);
         return -2;
       }
@@ -50,13 +54,43 @@ int begin_monitoring(const char * path , unsigned int sec_to_finish){
       }
 
       if(childPid == 0){
+        printf("%d running\n",getpid() );
         file_monitoring(file_path,sec_to_finish,interval);
+      //  printf("%d ended\n",getpid() );
       }
   }
 
     fclose(file);
     return 0;
 };
+
+int prepare_static_variables(const char * path){
+  int desc = open(path, O_RDONLY);
+
+  if(desc < 0)
+    return -1;
+
+
+  struct stat status;
+  lstat(path,&status);
+  last_mod=status.st_mtime;
+
+  if((state == RAM) && (file_buffer == NULL)){
+
+    size_t size = lseek(desc,0,SEEK_END);
+
+    file_buffer=calloc(sizeof(char),size);
+    lseek(desc,0,SEEK_SET);
+
+    if( read(desc,file_buffer,size) < size)
+      return -2;
+
+    printf("%s\n",file_buffer );
+    }
+
+    close(desc);
+    return 0;
+}
 
 int file_monitoring(const char * path, unsigned int exec_time, float interval){
   int cycle_counter=0;
@@ -66,10 +100,25 @@ int file_monitoring(const char * path, unsigned int exec_time, float interval){
   clock_gettime(CLOCK_REALTIME,&start_time);
   clock_gettime(CLOCK_REALTIME,&end_time);
 
+  struct stat status;
+
+  if(prepare_static_variables(path) < 0){
+    printf("exit\r\n");
+    exit(-1);
+  }
+
   while((unsigned int)(end_time.tv_sec - start_time.tv_sec) < exec_time){
-    copy(path);
+    lstat(path,&status);
+
+    if(last_mod < status.st_mtime){
+      printf("%d COPYING FILE \r\n",getpid());
+      copy(path);
+      printf("aftercopy\n");
+      last_mod = status.st_mtime;
+      cycle_counter++;
+    }
+
     sleep(interval);
-    cycle_counter++;
     clock_gettime(CLOCK_REALTIME,&end_time);
   }
 
@@ -80,81 +129,62 @@ int file_monitoring(const char * path, unsigned int exec_time, float interval){
 }
 
 int copy(const char * path){
-  FILE * file = fopen(path,"r");
+  int desc = open(path,O_RDONLY);
 
-  if(file == NULL)
+  if(desc<0)
     return -1;
 
-  struct stat status;
-  lstat(path,&status);
-
   if(state == RAM){
-    if(file_buffer == NULL){
-      last_mod=status.st_mtime;
+    printf("ROM\n");
+    time_t curr_time;
+    time(&curr_time);
 
-      size_t size = fseek(file,0,SEEK_END);
+    char buff[256];
+    char buff_time[50];
+    char path_copy[512];
 
-      file_buffer=calloc(sizeof(char),size);
-      fseek(file,0,SEEK_SET);
+    strftime(buff_time, 50, "_%Y-%m-%d_%H-%M-%S", localtime(&curr_time));
 
-      if( fread(file_buffer,sizeof(char),size,file) < size)
-        return -2;
-    }else if(last_mod < status.st_mtime){
-      time_t curr_time;
-      time(&curr_time);
+    strcpy(path_copy,path);
 
+    sprintf(buff,"archiwum/%s%s",basename(path_copy),buff_time);
+
+    int desc_copy = open(buff, O_WRONLY|O_CREAT , 0777);
+    printf("\n\n%s\n",file_buffer );
+    write(desc_copy, file_buffer, strlen(file_buffer));
+    close(desc_copy);
+
+    free(file_buffer);
+    size_t size = lseek(desc,0,SEEK_END);
+    lseek(desc,0,SEEK_SET);
+    file_buffer = calloc(sizeof(char),size);
+
+    read(desc,file_buffer,size);
+  }else{
+    pid_t childPid = fork();
+    time_t curr_time;
+    time(&curr_time);
+
+    if(childPid<0){}
+
+    if(childPid==0){
       char buff[256];
       char buff_time[50];
       char path_copy[512];
+      strcpy(path_copy,path);
 
       strftime(buff_time, 50, "_%Y-%m-%d_%H-%M-%S", localtime(&curr_time));
 
+      sprintf(buff,"archiwum/%s%s",basename(path_copy),buff_time);
       strcpy(path_copy,path);
-
-      sprintf(buff,"archwium/%s%s",basename(path_copy),buff_time);
-      FILE * copy_file = fopen(buff,"w");
-      fwrite(file_buffer,sizeof(char),strlen(file_buffer),copy_file);
-      fclose(copy_file);
-
-      free(file_buffer);
-      size_t size = fseek(file,0,SEEK_END);
-      fseek(file,0,SEEK_SET);
-      file_buffer = calloc(sizeof(char),size);
-
-      fread(file_buffer,sizeof(char),size,file);
-      last_mod=status.st_mtime;
+      char* const av[]={"cp",path_copy , buff, NULL};
+      execvp("cp", av);
+      exit(0);
+      }else if( childPid>0){
+        wait(NULL);
+      }
     }
-
-  }else{
-    if(last_mod<status.st_mtime){
-      last_mod=status.st_mtime;
-
-        pid_t childPid = fork();
-        time_t curr_time;
-        time(&curr_time);
-
-        if(childPid<0){}
-
-        if(childPid==0){
-          char buff[256];
-          char buff_time[50];
-          char path_copy[512];
-          strcpy(path_copy,path);
-
-          strftime(buff_time, 50, "_%Y-%m-%d_%H-%M-%S", localtime(&curr_time));
-
-          sprintf(buff,"archwium/%s%s",basename(path_copy),buff_time);
-          strcpy(path_copy,path);
-          char* const av[]={"cp",path_copy , buff, NULL};
-          execvp("cp", av);
-          exit(0);
-        }else if( childPid>0){
-          wait(NULL);
-        }
-    }
-
-  }
-  fclose(file);
+  close(desc);
   return 0;
 }
 
@@ -165,7 +195,7 @@ void wait_for_end(){
 
   while ((wpid = wait(&status)) > 0){
     if(WIFEXITED(status))
-      printf("Proces PID %d utworzył %d kopii pliku",wpid,WEXITSTATUS(status));
+      printf("Proces PID %d utworzył %d kopii pliku\n",wpid,WEXITSTATUS(status));
   }
 
 }

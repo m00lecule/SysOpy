@@ -6,6 +6,7 @@ void set_mode(enum State);
 int begin_monitoring(const char * , unsigned int);
 int file_monitoring(const char *, unsigned int, float);
 int copy(const char *);
+int prepare_static_variables(const char *);
 void wait_for_end();
 
 #endif
