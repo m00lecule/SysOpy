@@ -16,8 +16,13 @@
 int main(int argc, char** argv){
 
   char* buff = realpath(argv[1],NULL);
+  if(buff == NULL){
+    printf("Program argument: [PATH TO DIRECTORY] \n");
+    return -1;
+  }
 
   set_root(buff);
+
   search(buff);
 
   free(buff);

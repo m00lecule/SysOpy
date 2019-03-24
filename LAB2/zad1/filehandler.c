@@ -25,6 +25,7 @@ void generate(int count, int format, const char * file){
   }
 
   free(buff2);
+  close(desc);
 }
 
 int set_mode(const char * name){
@@ -118,6 +119,8 @@ int sort( const char * file, int count ,int format){
         }
       }
     }
+    close(desc);
+    close(desc2);
   }else{
     FILE * desc = fopen(file,"r+");
     FILE * desc2 = fopen(file,"r+");

@@ -28,8 +28,10 @@ int search(const char *path){
   struct dirent *entry = NULL;
   struct stat stats;
 
-  if((dir = opendir(path)) == NULL)
-    return -2;
+  if((dir = opendir(path)) == NULL){
+    printf("Specified directory doesnt exist\n" );
+    exit(-2);
+  }
 
   while((entry = readdir(dir)) != NULL ){
 
@@ -37,8 +39,8 @@ int search(const char *path){
     sprintf(curr_path,"%s/%s",path,entry->d_name);
 
     if(lstat(curr_path,&stats)<0){
-      printf("Error: %s\n",strerror(errno));
-      return -1;
+      printf("lstat error: %s\n",strerror(errno));
+      exit(-1);
     }
 
 
@@ -47,25 +49,14 @@ int search(const char *path){
       if(strcmp(entry->d_name,".") == 0 || strcmp(entry->d_name,"..") == 0)
         continue;
 
-
-
       pid_t childPid = fork();
 
       if(childPid > 0){
-        int value;
-        pid_t ret_pid = waitpid(childPid,&value,0);
-
-        if ( WIFEXITED(value) ) {
-        int es = WEXITSTATUS(value);
-        printf("Exit status was %d\n", es);
-    }
-
-        printf("%d %d\n",ret_pid, value );
-
+        waitpid(childPid,NULL,0);
       }else if(childPid==0){
         printf("%s: PID %d \n",curr_path+strlen(ROOT)+1,getpid());
         execl("/bin/ls", "ls",curr_path, "-l",NULL);
-        exit(4);
+        exit(0);
       }
 
       search(curr_path);
