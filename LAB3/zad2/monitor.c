@@ -126,7 +126,7 @@ int file_monitoring(const char * path, unsigned int exec_time, float interval){
   struct stat status;
 
   if(prepare_static_variables(path) < 0){
-    return(-1);
+    exit(-1);
   }
 
   while((unsigned int)(end_time.tv_sec - start_time.tv_sec) < exec_time){
@@ -181,15 +181,16 @@ int copy(const char * path){
     sprintf(buff,"archiwum/%s%s",basename(path_copy),buff_time);
 
     int desc_copy = open(buff, O_WRONLY|O_CREAT , 0777);
-    if(desc_copy < 0){
+
+    if(desc_copy<0){
       printf("PID: %d couldnt open file: %s\n",getpid(),buff);
       return -1;
     }
 
     if(write(desc_copy, file_buffer, strlen(file_buffer)) < strlen(file_buffer)){
-        printf("PID: %d error while writing to file: %s\n",getpid(),buff);
-        close(desc_copy);
-        return -2;
+          printf("PID: %d error while writing to file: %s\n",getpid(),buff);
+          close(desc_copy);
+          return -2;
     }
 
     close(desc_copy);
@@ -208,7 +209,6 @@ int copy(const char * path){
       printf("PID: %d error while loading file to memory \n",getpid() );
       return -3;
     }
-
   }else{
     pid_t childPid = fork();
     time_t curr_time;
@@ -222,7 +222,13 @@ int copy(const char * path){
       char path_copy[512];
       strcpy(path_copy,path);
 
-      strftime(buff_time, 50, "_%Y-%m-%d_%H-%M-%S", localtime(&curr_time));
+    int desc_copy = open(buff, O_WRONLY|O_CREAT , 0777);
+    if(desc_copy < 0){
+      printf("PID: %d couldnt open file: %s\n",getpid(),buff);
+      return -1;
+    }
+    strftime(buff_time, 50, "_%Y-%m-%d_%H-%M-%S", localtime(&curr_time));
+
 
       sprintf(buff,"archiwum/%s%s",basename(path_copy),buff_time);
       strcpy(path_copy,path);
@@ -236,3 +242,5 @@ int copy(const char * path){
   close(desc);
   return 0;
 }
+
+  

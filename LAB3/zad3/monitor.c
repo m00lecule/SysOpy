@@ -110,7 +110,6 @@ void begin_monitoring(const char * path , unsigned int sec_to_finish,unsigned in
 
         if(setrlimit(RLIMIT_AS, &new_limit) < 0){}
 
-        printf("%d running\n",getpid() );
         if(file_monitoring(file_path,sec_to_finish,interval)){
           printf("Error while running proces for line %d\n",line_counter );
         }
