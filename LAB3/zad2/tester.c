@@ -7,25 +7,18 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-char *rand_string(size_t length) {
+void rand_string_set(char* ptr, size_t length) {
 
     static char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,.-#'?!";
-    char *randomString = NULL;
 
     if (length) {
-        randomString = malloc(sizeof(char) * (length +1));
-
-        if (randomString) {
             for (int n = 0;n < length;n++) {
                 int key = rand() % (int)(sizeof(charset) -1);
-                randomString[n] = charset[key];
+                ptr[n] = charset[key];
             }
 
-            randomString[length] = '\0';
+            ptr[length] = '\0';
         }
-    }
-
-    return randomString;
 }
 
 int main(int argc, char** argv){
@@ -39,7 +32,8 @@ int main(int argc, char** argv){
   int freq = rand()%(pmax-pmin);
   freq += pmin;
 
-  printf("%d\n",freq );
+  char * rand_string = calloc(sizeof(*rand_string),bytes+1);
+
   char buff[512];
   char buff_time[50];
 
@@ -53,10 +47,12 @@ int main(int argc, char** argv){
     sleep(freq);
     time(&curr_time);
     strftime(buff_time, 50, "_%Y-%m-%d_%H-%M-%S", localtime(&curr_time));
-    sprintf(buff,"%d__%d__%s__%s\n",getpid(),rand(),buff_time,rand_string(bytes));
+    rand_string_set(rand_string,bytes);
+    sprintf(buff,"%d__%d__%s__%s\n",getpid(),rand(),buff_time,rand_string);
     write(desc,buff,strlen(buff));
     close(desc);
   }
+  free(rand_string);
 
   return 0;
 }

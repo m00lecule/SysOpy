@@ -46,13 +46,14 @@ void print_process_stat(){
 void begin_monitoring(const char * path , unsigned int sec_to_finish,unsigned int vmem_limit_mb, unsigned int proc_limit_s){
   FILE * file = fopen(path,"r");
 
-  if(!file){
+  if(file == NULL){
     printf("Problems while handling file\n");
     return;
   }
 
   char buff[512];
   char file_path[256];
+  char temp[100];
   float interval;
 
   int line_counter=0;
@@ -64,10 +65,11 @@ void begin_monitoring(const char * path , unsigned int sec_to_finish,unsigned in
         continue;
       }
 
-      strcpy(file_path,pch);
+      strcpy(temp,pch);
       pch = strtok (NULL, " ");
 
-      strcat(file_path,pch);
+      strcpy(file_path,pch);
+      strcat(file_path,temp);
 
       pch = strtok (NULL, " ");
       if(pch==NULL){
@@ -93,6 +95,13 @@ void begin_monitoring(const char * path , unsigned int sec_to_finish,unsigned in
       }
 
       if(childPid == 0){
+        if(file != NULL)
+          fclose(file);
+
+        if(file_buffer!=NULL){
+          free(file_buffer);
+          file_buffer=NULL;
+        }
         struct rlimit new_limit;
         getrlimit(RLIMIT_CPU,&new_limit);
 
@@ -142,7 +151,7 @@ int prepare_static_variables(const char * path){
 
     size_t size = lseek(desc,0,SEEK_END);
 
-    file_buffer=calloc(sizeof(char),size);
+    file_buffer=calloc(sizeof(char),size +1);
 
     if(file_buffer == NULL){
       printf("Couldnt allocate memory buffer\n");
@@ -189,9 +198,8 @@ int file_monitoring(const char * path, unsigned int exec_time, float interval){
     clock_gettime(CLOCK_REALTIME,&end_time);
   }
 
-  if(!file_buffer)
+  if(file_buffer)
     free(file_buffer);
-
 
   print_process_stat();
   exit(cycle_counter);
@@ -237,7 +245,7 @@ int copy(const char * path){
     free(file_buffer);
     size_t size = lseek(desc,0,SEEK_END);
     lseek(desc,0,SEEK_SET);
-    file_buffer = calloc(sizeof(char),size);
+    file_buffer = calloc(sizeof(char),size+1);
 
     if(file_buffer == NULL){
       printf("PID: %d couldnt allocate memory for file content\n",getpid() );

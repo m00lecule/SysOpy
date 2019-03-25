@@ -1,4 +1,4 @@
-CC = gcc -Wall -std=gnu11
+CC = gcc -Wall -std=gnu11 -g
 
 all: main.o monitorlib
 	$(CC) main.o monitorlib.a -o monitor

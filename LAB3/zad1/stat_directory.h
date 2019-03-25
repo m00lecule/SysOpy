@@ -7,5 +7,6 @@
 
 void set_root(const char*);
 int search(const char*);
+void free_lib();
 
 #endif

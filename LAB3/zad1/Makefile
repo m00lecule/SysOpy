@@ -1,5 +1,5 @@
 SHELL=/bin/bash
-CC = gcc -Wall -std=gnu11
+CC = gcc -Wall -std=gnu11 -g
 DIR = test_directory
 DIR_LIST = $(DIR)/{pictures/{2018,2019},documents/{public,private,shared,protected},movie/{titanic,lotr,jaws},music/{rock,pop,indie},gallery/{birthday,christmass,funeral}}
 FILE_LIST = $(DIR)/pictures/2018/zdj1.png $(DIR)/pictures/2019/zdj2.png $(DIR)/documents/public/book.pdf $(DIR)/documents/public/book2.pdf $(DIR)/documents/public/book3.pdf
@@ -25,4 +25,5 @@ test:
 	make clean
 	make all
 	./main "."
+	rm -r $(DIR)
 	make clean

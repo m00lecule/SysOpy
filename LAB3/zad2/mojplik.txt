@@ -1,2 +1,0 @@
-/home/michald/Dokumenty/Programy/SysOpy/LAB3/zad2/michal.txt 5
-/home/michald/Dokumenty/Programy/SysOpy/LAB3/zad2/michal2.txt 4

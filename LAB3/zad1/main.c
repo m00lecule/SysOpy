@@ -26,6 +26,6 @@ int main(int argc, char** argv){
   search(buff);
 
   free(buff);
-
+  free_lib();
   return 0;
 }

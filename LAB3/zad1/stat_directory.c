@@ -15,12 +15,15 @@
 
 char * ROOT = NULL;
 
-void set_root(const char * root_name){
-  if(ROOT == NULL)
+void free_lib(){
+  if(ROOT != NULL)
     free(ROOT);
+}
 
-  ROOT = calloc(sizeof(char),strlen(root_name));
-  strcpy(ROOT,root_name);
+void set_root(const char * root_name){
+  free_lib();
+
+  ROOT = strdup(root_name);
 }
 
 int search(const char *path){
@@ -54,6 +57,7 @@ int search(const char *path){
       if(childPid > 0){
         waitpid(childPid,NULL,0);
       }else if(childPid==0){
+        closedir(dir);
         printf("%s: PID %d \n",curr_path+strlen(ROOT)+1,getpid());
         execl("/bin/ls", "ls",curr_path, "-l",NULL);
         exit(0);
