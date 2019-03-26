@@ -25,9 +25,35 @@ int main(int argc, char** argv){
 
   srand(time(NULL));
 
+  if(argc != 5){
+    printf("Wrong argument number \n");
+    printf("[FILE] [pmin] [pmax] [bytes]" );
+    return -1;
+  }
+
   int pmin = atoi(argv[2]);
+
+  if(pmin < 0){
+    printf("pmin must be positive\n");
+    printf("[FILE] [pmin] [pmax] [bytes] \n" );
+    return -1;
+  }
+
   int pmax = atoi(argv[3]);
+
+  if(pmax < 0){
+    printf("pmax must be positve \n");
+    printf("[FILE] [pmin] [pmax] [bytes] \n" );
+    return -1;
+  }
+
   size_t bytes = atoi(argv[4]);
+
+  if(bytes < 0){
+    printf("bytes number must be positive \n");
+    printf("[FILE] [pmin] [pmax] [bytes] \n" );
+    return -1;
+  }
 
   int freq = rand()%(pmax-pmin);
   freq += pmin;
@@ -48,7 +74,7 @@ int main(int argc, char** argv){
     time(&curr_time);
     strftime(buff_time, 50, "_%Y-%m-%d_%H-%M-%S", localtime(&curr_time));
     rand_string_set(rand_string,bytes);
-    sprintf(buff,"%d__%d__%s__%s\n",getpid(),rand(),buff_time,rand_string);
+    sprintf(buff,"%d__%d__%s__%s\n",getpid(),freq,buff_time,rand_string);
     write(desc,buff,strlen(buff));
     close(desc);
   }

@@ -42,6 +42,7 @@ int search(const char *path){
     sprintf(curr_path,"%s/%s",path,entry->d_name);
 
     if(lstat(curr_path,&stats)<0){
+      closedir(dir);
       printf("lstat error: %s\n",strerror(errno));
       exit(-1);
     }

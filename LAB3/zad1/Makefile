@@ -17,13 +17,13 @@ stat_directorylib:
 
 clean:
 	rm -f *.o *.a main
-	rm -rf $(DIR)
+
 
 test:
+	rm -rf $(DIR)
 	mkdir -p $(DIR_LIST)
 	touch $(FILE_LIST)
 	make clean
 	make all
 	./main "."
-	rm -r $(DIR)
 	make clean
