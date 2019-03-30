@@ -151,7 +151,7 @@ int file_monitoring(const char * path, unsigned int exec_time, float interval){
       cycle_counter++;
     }
 
-    
+
       sleep(interval);
       clock_gettime(CLOCK_REALTIME,&end_time);
     }
@@ -172,6 +172,8 @@ void wait_for_end(){
     if(WIFEXITED(status))
       printf("Proces PID %d utworzył %d kopii pliku\n",wpid,WEXITSTATUS(status));
   }
+
+  freeStack();
 
   if(file_buffer != NULL){
     free(file_buffer);
