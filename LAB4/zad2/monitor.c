@@ -275,6 +275,8 @@ void wait_for_end(){
       printf("Proces PID %d utworzył %d kopii pliku\n",wpid,WEXITSTATUS(status));
   }
 
+freeStack();
+
   if(file_buffer != NULL){
     free(file_buffer);
     file_buffer=NULL;

@@ -11,6 +11,8 @@ int main(int argc, char** argv){
   begin_monitoring(argv[1]);
   char buff[128];
 
+signal(SIGINT,end);
+
   while(1){
      scanf ("%[^\n]%*c", buff);
 

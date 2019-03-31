@@ -33,8 +33,6 @@ int main(int argc, char** argv){
     return -1;
   }
 
-  signal(SIGINT,end);
-
   begin_monitoring(argv[1],sec);
   wait_for_end();
 
