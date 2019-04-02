@@ -117,8 +117,5 @@ else{
 
   send_all(atoi(argv[2]),mode);
 
-
-
-  while(1) {}
   return 0;
 }
