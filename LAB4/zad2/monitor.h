@@ -18,7 +18,7 @@ void addToStack(struct Node*);
 void printStack();
 
 
-void begin_monitoring(const char *);
+int begin_monitoring(const char *);
 int file_monitoring(const char *, int);
 void stop_pid(pid_t);
 void stop_all();

@@ -4,11 +4,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 int main(int argc, char** argv){
   mkdir("archiwum",0777);
 
-  begin_monitoring(argv[1]);
+  if(argc != 2){
+    printf("Wrong number of arguments \n");
+    printf("[file] \n");
+    return -1;
+  }
+
+  if( begin_monitoring(argv[1]) != 0 ) {
+    return -1;
+  }
   char buff[128];
 
 signal(SIGINT,end);
@@ -37,6 +46,9 @@ signal(SIGINT,end);
       ptr = strtok(NULL, " ");
       pid_t pid = atoi(ptr);
       start_pid(pid);
+    }else{
+      printf("Wrong command\n");
+      printf("List of commands: LIST, STOP [PID], STOP ALL, START [PID], START ALL, END\n");
     }
   }
 

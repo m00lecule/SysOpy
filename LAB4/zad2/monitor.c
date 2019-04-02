@@ -57,12 +57,10 @@ void start_pid(pid_t pid){
 }
 
 void signal_sigusr1(){
-  printf("%d USR1 \n",getpid());
   run = false;
 }
 
 void signal_sigusr2(){
-  printf("%d USR2 \n",getpid());
   run = true;
 }
 
@@ -116,12 +114,12 @@ void printStack(){
 }
 
 
-void begin_monitoring(const char * path){
+int begin_monitoring(const char * path){
   FILE * file = fopen(path,"r");
 
   if(!file){
     printf("Problems while handling file\n");
-    return;
+    return -1;
   }
 
   signal(SIGINT,end);
@@ -186,7 +184,6 @@ void begin_monitoring(const char * path){
 
         //freeStack();
 
-        printf("%d\n",getpid() );
         signal(SIGUSR1,signal_sigusr1);
         signal(SIGUSR2,signal_sigusr2);
         signal(SIGCHLD,signal_sigchld);
@@ -202,6 +199,8 @@ void begin_monitoring(const char * path){
 
   if(file)
     fclose(file);
+
+  return 0;
 };
 
 int prepare_static_variables(const char * path){
@@ -250,7 +249,6 @@ int file_monitoring(const char * path, int interval){
     if(run){
       lstat(path,&status);
         if(last_mod < status.st_mtime){
-          printf(" COPY %d\n", getpid() );
           copy(path);
           last_mod = status.st_mtime;
           counter++;

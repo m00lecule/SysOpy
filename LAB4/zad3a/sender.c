@@ -72,7 +72,7 @@ int main(int argc, char** argv){
  if(argc != 4){
    printf("Wrong argument number\n");
    printf("[MODE] [PID] [COUNT]\n");
-
+   return -1;
  }
 
  if(strcmp(argv[1],"KILL") == 0)

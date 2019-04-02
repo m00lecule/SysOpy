@@ -42,6 +42,12 @@ void signal_sigusr2(int no, siginfo_t *info, void *ucontext){
 
 int main(int argc, char** argv){
 
+  if(argc != 2){
+    printf("Wrong number of arguments\n");
+    printf("[MODE { KILL/SIGQUEUE/SIGRT}]\n");
+    return -1;
+  }
+
   printf("CATCHER PID :%d\n",getpid());
 
   struct sigaction act;
@@ -66,7 +72,7 @@ if(strcmp(argv[1],"KILL") ==0){
   mode=0;
 } else if(strcmp(argv[1],"SIGQUEUE")==0){
   mode=1;
-} else if(strcmp(argv[1],"SIGRTL") ==0){
+} else if(strcmp(argv[1],"SIGRT") ==0){
   mode=2;
 }else{
   printf("Wrong value of first argument\n");

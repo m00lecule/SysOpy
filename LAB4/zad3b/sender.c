@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 static int received = 0;
 static int send=0;
@@ -9,7 +10,8 @@ static volatile int condition=1;
 
 void signal_sigusr1(int no, siginfo_t *info, void *ucontext){
   condition=0;
-  received+=1; 
+  received+=1;
+  return;
 }
 
 void signal_sigusr2(int no, siginfo_t *info, void *ucontext){
@@ -23,6 +25,8 @@ void signal_sigusr2(int no, siginfo_t *info, void *ucontext){
 void send_all(pid_t pid,int mode){
   union sigval value;
     for(int i = 0 ; i < send; ++i){
+
+      condition=1;
       if(mode == 0){
         if (kill(pid,SIGUSR1) != 0 )
          printf("ERROR WHILE SENDING SIGUSR1\n");
@@ -32,8 +36,10 @@ void send_all(pid_t pid,int mode){
       }else if (mode == 2){
         if(kill(pid,SIGRTMIN + 12) != 0){}
       }
-      condition = 1;
-      while(condition){}
+      sleep(1);
+
+      if(condition == 1)
+        printf("FOUND DEADLOCK\n" );
     }
 
     if(mode == 0){
@@ -50,13 +56,34 @@ void send_all(pid_t pid,int mode){
 }
 
 int main(int argc, char** argv){
+  if( argc != 4){
+    printf("Wrong argument number\n");
+    printf("[MODE] [PID] [COUNT]\n");
+    return -1;
+  }
+
   struct sigaction act;
  act.sa_flags = SA_SIGINFO;
+ sigset_t mask;
+ sigfillset(&mask);
+ sigprocmask(SIG_SETMASK, &mask, NULL);
+
+ sigset_t sigs;
+ sigemptyset(&sigs);
+ sigaddset(&sigs, SIGUSR2);
+ sigaddset(&sigs, SIGUSR1);
+ sigaddset(&sigs, SIGRTMIN+12);
+ sigaddset(&sigs, SIGRTMIN+13);
+
+ sigprocmask(SIG_UNBLOCK,&sigs,NULL);
+
 
  act.sa_sigaction = signal_sigusr1;
  sigfillset(&act.sa_mask);
  sigdelset(&act.sa_mask, SIGUSR1);
  sigdelset(&act.sa_mask, SIGRTMIN + 12);
+
+
  sigaction(SIGUSR1, &act, NULL);
  sigaction(SIGRTMIN + 12, &act, NULL);
 
