@@ -80,6 +80,7 @@ void end(){
       kill(ptr->pid,SIGCHLD);
       ptr=ptr->next;
   }
+  
   wait_for_end();
   freeStack();
   if(file_buffer)
