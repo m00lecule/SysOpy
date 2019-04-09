@@ -17,7 +17,6 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/wait.h>
- #define MAX_ARGS 5
 
 void pipe_call(const char * first){
   int i = 0;
@@ -56,7 +55,7 @@ void pipe_call(const char * first){
 
       if(args)
         free(args);
-      args = calloc(MAX_ARGS + 2, sizeof(char*));
+      args = calloc(5 + 2, sizeof(char*));
       int j = 0 ;
       theRest2 = token;
       char delimiters[3] = {' ','\n','\t'};

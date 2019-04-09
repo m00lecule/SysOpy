@@ -17,9 +17,9 @@ int main(int argc, char** argv){
 
    int f = open(argv[1], O_RDWR);
    if(f < 0){
-     printf("POTOP NAZWANY NIE ISTNIEJE, TWORZE NOWY\n" );
-     if(mkfifo(argv[1], S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) == -1){
-       exit(1);
+     printf("POTOK NAZWANY NIE ISTNIEJE, TWORZE NOWY\n" );
+     if(mkfifo(argv[1], 0777) < 0){
+       exit(-1);
      }
      f = open(argv[1], O_RDWR);
    }
