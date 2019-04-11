@@ -6,17 +6,7 @@
  #include <sys/wait.h>
  #include <string.h>
  #include <stdlib.h>
-
-
-#include <limits.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <time.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/wait.h>
+ #include <stdint.h>
 
 void pipe_call(const char * first){
   int i = 0;
@@ -64,10 +54,6 @@ void pipe_call(const char * first){
         args[j++] = strdup(token2);
 
       args[j]=NULL;
-
-      for( int i = 0 ; args[i] != NULL ; ++i)
-        printf("%s:",args[i]);
-
 
       execvp(args[0],args);
       exit(0);
