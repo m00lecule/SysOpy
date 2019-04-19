@@ -66,6 +66,7 @@ void pipe_call(const char * first){
     i++;
     token = next_token;
   }
+  free(ptr);
 }
 int main(int argc, char** argv){
 

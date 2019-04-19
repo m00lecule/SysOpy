@@ -35,7 +35,7 @@ int main(int argc, char ** argv){
   printf("SLAVE PID:%d\n",getpid());
 
   char date_buff[40];
-  char final[45];
+  char final[100];
 
   while(num--){
     FILE * date = popen("date","r");

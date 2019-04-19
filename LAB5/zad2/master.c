@@ -23,9 +23,9 @@ int main(int argc, char** argv){
      f = open(argv[1], O_RDWR);
    }
 
-   char buff[512];
+   char buff[1024];
    while(1){
-    read(f, buff, 512);
+    read(f, buff, 1024);
     printf("%s\n",buff);
  }
 

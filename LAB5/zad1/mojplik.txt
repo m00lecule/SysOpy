@@ -1,2 +1,3 @@
 ls -la | grep michal | wc -l
 ls / -l | wc -w 
+ls / | wc 
