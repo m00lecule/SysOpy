@@ -92,7 +92,7 @@ void init_mesg(){
 void exit_handle(){
   mesg.id = id;
   mesg.priority=STOP_PRIOR;
-  mesg.type=PRIORITY;
+  mesg.type=STOP;
   send_message();
   delete_queue();
   exit(0);
@@ -107,7 +107,7 @@ void parent_read(int p[]){
     init_mesg();
 
     while (1) {
-        if(read(p[0], buff, SIZE) != -1){
+        if(read(p[0], buff, SIZE) > 0){
             char* the_rest = buff;
             char delimiters[3] = {' ','\n','\t'};
             char * token = strtok_r(the_rest,delimiters,&the_rest);
@@ -123,7 +123,6 @@ void parent_read(int p[]){
               if(the_rest == NULL){
                 mesg.mesg_text[0]='\0';
               }else{
-                printf("FRIENDS 3\n" );
                 strcpy(mesg.mesg_text,the_rest);
               }
               mesg.priority = FRIENDS_PRIOR;
@@ -145,6 +144,7 @@ void parent_read(int p[]){
               }else{
                 mesg.priority = DEL_PRIOR;
                 mesg.type = DEL;
+                printf("SENDING DEL\n" );
                 strcpy(mesg.mesg_text,the_rest);
                 send_message();
               }
@@ -185,22 +185,27 @@ void parent_read(int p[]){
           switch(mesg.type){
             case LIST :
               printf("LIST: %s",mesg.mesg_text);
+
             break;
 
             case ECHO:
               printf("ECHO: %s",mesg.mesg_text);
+
             break;
 
             case ALL2:
               printf("2ALL: %s",mesg.mesg_text);
+
             break;
 
             case ONE2:
               printf("2ONE: %s",mesg.mesg_text);
+
             break;
 
             case FRIENDS2:
               printf("2FRIENDS: %s",mesg.mesg_text );
+            
             break;
 
             case STOP:
@@ -247,6 +252,7 @@ void child_write(int p[])
 
 int main(int argc, char** argv){
 
+  setbuf(stdout, NULL);
   int p[2];
   if (pipe(p) < 0)
       exit(1);

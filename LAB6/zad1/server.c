@@ -17,44 +17,26 @@
 static struct mesg_buffer mesg;
 static int queue_id;
 
-typedef struct list{
-  struct list * next;
-  int index;
-}list;
-
-
-typedef struct client{
-  int queue_id;
-  struct list * friends;
-}client;
-
-
-static client client_list[CLIENT_NO];
+static int friends[CLIENT_NO][CLIENT_NO];
+static int client_list[CLIENT_NO];
 
 void delete_client_friends_list(int client_id){
-  struct list * ptr;
-  struct list * next;
 
-  ptr = client_list[client_id].friends;
-  next = ptr->next;
-
-  do{
-    free(ptr);
-    ptr = next;
-    next = next->next;
-  }while(next != NULL);
-
-  client_list[client_id].friends=NULL;
+  if(client_id>=0 && client_id < CLIENT_NO)
+    for(int i = 0 ; i < CLIENT_NO ; ++i)
+      friends[client_id][i] = 0;
 }
 
 
 void print_friend_list(int client_id){
-  struct list * ptr = client_list[client_id].friends;
   printf("CLIENT FRIENDS: %d\n",client_id );
-  while(ptr!=NULL){
-    printf("%d\n",ptr->index );
-    ptr=ptr->next;
-  }
+
+  for(int i = 0 ; i < CLIENT_NO ; ++i){
+    if(friends[client_id][i]==1)
+      printf("%d ",i);
+    }
+
+
 }
 
 void list_clients(){
@@ -63,7 +45,7 @@ void list_clients(){
   char buff[14];
 
   for(int i = 0 ; i < CLIENT_NO; ++i)
-    if(client_list[i].queue_id != -1){
+    if(client_list[i] != -1){
       sprintf(buff,"%d ",i);
       strcat(list,buff);
     }
@@ -74,113 +56,50 @@ void list_clients(){
 
 void send_message_to_client(int client_id){
 
-  if(client_id < CLIENT_NO && client_list[client_id].queue_id != -1){
-    printf("RECEPIENT: %d \n",client_list[client_id].queue_id );
-    msgsnd(client_list[client_id].queue_id,&mesg,mesg_size(),0);
+  if(client_id < CLIENT_NO && client_list[client_id] != -1){
+    printf("RECEPIENT: %d \n",client_list[client_id]);
+    msgsnd(client_list[client_id],&mesg,mesg_size(),0);
   }
 }
 
 
 int add_client(int queue_id){
   for( int i = 0 ; i < CLIENT_NO ; ++i)
-    if(client_list[i].queue_id == -1){
-      client_list[i].queue_id=queue_id;
+    if(client_list[i] == -1){
+      client_list[i]=queue_id;
       return i;
     }
 
   return -1;
 }
 
-struct list * string_to_list(char * str){
-  struct list * before;
-  struct list * after;
-
-  char* the_rest = str;
-  char* token = strtok_r(the_rest," ",&the_rest);
-
-  after = calloc(1,sizeof(list));
-  after->next=NULL;
-  after->index = strtol(token,NULL,10);
-  char delimiters[3] = {' ','\n','\t'};
-  token = strtok_r(the_rest,delimiters, &the_rest);
-  while( token != NULL && the_rest!=NULL){
-    before = calloc(1,sizeof(list));
-    before->index = strtol(token,NULL,10);
-    before->next=after;
-    after=before;
-    token = strtok_r(the_rest,delimiters, &the_rest);
-  }
-  return after;
-}
-
 
 void add_to_friend_list(int client_id,char* str){
 
-  struct list * friends = string_to_list(str);
-  struct list * temp = NULL;
-  struct list * after;
-  short cond;
-  if(client_list[client_id].friends == NULL){
-    client_list[client_id].friends=friends;
-  }else{
-
-
-    while(friends != NULL){
-      temp = client_list[client_id].friends;
-      cond = 0;
-      after->next = client_list[client_id].friends;
-      while(temp!=NULL){
-        if(temp->index == friends->index){
-          temp = friends;
-          friends = friends->next;
-          free(temp);
-          cond = 1;
-          break;
-        }
-        temp=temp->next;
-        after= after->next;
-      }
-
-      if(cond == 0){
-        after->next = friends;
-        friends = friends -> next;
-        after->next->next=NULL;
-      }
+  char * ptr = str;
+  char * token = strtok_r(ptr," ",&ptr);
+  while(ptr!=NULL && token!=NULL ){
+    int index = strtol(token,NULL,10);
+    if(index >=0 && index < CLIENT_NO){
+      printf("added friend %d\n",index );
+      friends[client_id][index] = 1;
     }
+
+    token = strtok_r(ptr," ",&ptr);
   }
 }
 
 void delete_from_friend_list(int client_id, char* str){
-  struct list * friends = string_to_list(str);
-  struct list * temp;
-  struct list * del;
-  short cond = 0;
-  while(friends!=NULL){
-    cond = 0;
-    temp = client_list[client_id].friends;
-    if(temp->index == friends->index){
-      client_list[client_id].friends = client_list[client_id].friends->next;
-      continue;
-    }
-    while(temp->next!=NULL){
-      if(temp->next->index == friends->index){
-        del = temp->next;
-        temp->next = del->next;
-        free(del);
-        del = friends;
-        friends = friends->next;
-        free(del);
-        cond = 1;
-        break;
-      }
-      temp=temp->next;
-    }
+  char * ptr = str;
+  char * token = strtok_r(ptr," ",&ptr);
 
-    if(cond == 0 ){
-      del = friends;
-      friends = friends->next;
-      free(del);
-    }
+  while(ptr!=NULL && token!=NULL ){
+    int index = strtol(token,NULL,10);
+
+    if(index >=0 && index < CLIENT_NO)
+      friends[client_id][index] = 0;
+
+    token = strtok_r(ptr," ",&ptr);
   }
 }
 
@@ -202,6 +121,8 @@ void list_handle(){
   printf("RECEIVED LIST FROM %d\n",mesg.id);
   list_clients();
   printf("%s\n",mesg.mesg_text );
+  mesg.type = LIST;
+  mesg.priority=LIST_PRIOR;
   send_message_to_client(client_id);
 }
 
@@ -220,7 +141,7 @@ void all2_handle(){
   strcpy(mesg.mesg_text,buff);
 
   for(int i = 0 ; i < CLIENT_NO ; ++i)
-    if(client_list[i].queue_id != -1)
+    if(client_list[i]!= -1)
       send_message_to_client(i);
 
 }
@@ -238,21 +159,20 @@ void friends2_handle(){
   strcat(buff,mesg.mesg_text);
   strcpy(mesg.mesg_text,buff);
 
-  struct list * it = client_list[mesg.id].friends;
-
-  while(it != NULL){
-    send_message_to_client(it->index);
-    it = it->next;
-  }
+  for(int i = 0 ; i < CLIENT_NO ; ++i)
+    if(friends[mesg.id][i])
+      send_message_to_client(i);
 }
 
 
 void add_handle(){
+  printf("ADD HANDLE\n");
   add_to_friend_list(mesg.id,mesg.mesg_text);
   print_friend_list(mesg.id);
 }
 
 void del_handle(){
+  printf("DELETE HANDLE\n");
   delete_from_friend_list(mesg.id,mesg.mesg_text);
   print_friend_list(mesg.id);
 }
@@ -260,7 +180,7 @@ void del_handle(){
 void stop_handle(){
   printf("RECEIVED STOP FROM %d\n",mesg.id);
   delete_client_friends_list(mesg.id);
-  client_list[mesg.id].queue_id=-1;
+  client_list[mesg.id]=-1;
 }
 
 void echo_handle(){
@@ -271,7 +191,7 @@ void echo_handle(){
   strftime(buff, 100, "%Y-%m-%d_%H-%M-%S ", localtime(&curr_time));
   strcat(buff,mesg.mesg_text);
   strcpy(mesg.mesg_text,buff);
-  printf("SENDING TO %d\n",client_list[mesg.id].queue_id );
+  printf("SENDING TO %d\n",client_list[mesg.id]);
   send_message_to_client(mesg.id);
 }
 
@@ -293,14 +213,9 @@ void one2_handle(){
 }
 
 void friends_handle(){
-  if(mesg.mesg_text[0] == '\0'){
-    delete_client_friends_list(mesg.id);
-  }else{
-    struct list* friends = string_to_list(mesg.mesg_text);
-    if(client_list[mesg.id].friends != NULL)
-      delete_client_friends_list(mesg.id);
-
-  client_list[mesg.id].friends = friends;
+  delete_client_friends_list(mesg.id);
+  if(mesg.mesg_text[0] != '\0'){
+    add_to_friend_list(mesg.id,mesg.mesg_text);
   }
   print_friend_list(mesg.id);
 }
@@ -308,13 +223,15 @@ void friends_handle(){
 
 void check_client_list(){
   for( int i = 0 ; i < CLIENT_NO ; ++i)
-    printf("%d %d\n",i,client_list[i].queue_id );
+    printf("%d %d\n",i,client_list[i] );
 }
 
 void set_up_client_list(){
   for( int i = 0 ; i < CLIENT_NO ; ++i){
-    client_list[i].friends = NULL;
-    client_list[i].queue_id=-1;
+    client_list[i]= -1;
+
+    for(int j = 0 ; j < CLIENT_NO ; ++j)
+      friends[i][j]=0;
   }
 }
 
@@ -340,8 +257,8 @@ void exit_handle(){
   exit_message.type = STOP;
 
   for(int i = 0 ; i < CLIENT_NO ; ++i)
-    if(client_list[i].queue_id != -1){
-      msgsnd(client_list[i].queue_id,&exit_message,mesg_size(),0);
+    if(client_list[i]!= -1){
+      msgsnd(client_list[i],&exit_message,mesg_size(),0);
     }
 
   msgctl(queue_id, IPC_RMID, NULL);
@@ -351,6 +268,7 @@ void exit_handle(){
 int main(int argc, char** argv){
 
   srand(time(NULL));
+  setbuf(stdout, NULL);
 
   signal(SIGINT,exit_handle);
   set_up_client_list();
@@ -358,8 +276,7 @@ int main(int argc, char** argv){
 
   while(1){
 
-    if(msgrcv(queue_id,&mesg,mesg_size(),0,0) != -1){
-
+    if(msgrcv(queue_id,&mesg,mesg_size(),0,IPC_NOWAIT) != -1){
       switch (mesg.type) {
         case INIT:
           init_handle();
