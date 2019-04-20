@@ -1,0 +1,36 @@
+ECHO witaj
+FRIENDS 1 2 3
+ADD 1 2
+ECHO 1 2 3
+2ALL witajcie
+2FRIENDS zapraszam
+2ONE 3 witaj_3
+FRIENDS
+2FRIENDS zapraszam
+LIST
+LIST
+FRIENDS 1 2 3
+ADD 1 2
+ECHO 1 2 3
+2ALL witajcie
+2FRIENDS zapraszam
+2ONE 3 witaj_3
+FRIENDS
+2FRIENDS zapraszam
+FRIENDS 1 2 3
+ADD 1 2
+ECHO 1 2 3
+2ALL witajcie
+2FRIENDS zapraszam
+2ONE 3 witaj_3
+FRIENDS
+2FRIENDS zapraszam
+FRIENDS 1 2 3
+ADD 1 2
+ECHO 1 2 3
+2ALL witajcie
+2FRIENDS zapraszam
+2ONE 3 witaj_3
+FRIENDS
+2FRIENDS zapraszam
+STOP

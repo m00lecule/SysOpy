@@ -14,33 +14,40 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <string.h>
+#include <mqueue.h>
+#include <fcntl.h>
 #define SIZE 1024
 
-static struct mesg_buffer mesg;
-static int server_queue_id = -1;
-static int queue_id;
+static mqd_t server_queue_id = -1;
+static mqd_t queue_id;
 static int id;
 static pid_t child = -1;
 static int p[2];
+static char CLIENT_NAME[32];
 
 char buff[1024];
+static struct mesg_buffer mesg;
 
 void delete_queue(){
-  msgctl(queue_id, IPC_RMID, NULL);
+  mq_close(server_queue_id);
+  mq_close(queue_id);
+  mq_unlink(CLIENT_NAME);
 }
 
-void send_message(){
+void send_message(int priority){
   if(server_queue_id != -1){
-    msgsnd(server_queue_id,&mesg,mesg_size(),0);
+    if(mq_send(server_queue_id,(const char*)&mesg,sizeof(mesg),priority)< 0){
+      printf("ERROR: %s\n",strerror(errno));
+      fflush(stdout);
+    }
   }
 }
 
 void exit_function_parent(){
   close(p[0]);
   mesg.id = id;
-  mesg.priority=STOP_PRIOR;
   mesg.type=STOP;
-  send_message();
+  send_message(STOP_PRIOR);
   delete_queue();
 
   if(child!=-1){
@@ -57,35 +64,36 @@ void exit_function_child(){
 }
 
 void set_up_server_queue_id(){
-  const char *homedir;
-
-  if ((homedir = getenv("HOME")) == NULL) {
-      homedir = getpwuid(getuid())->pw_dir;
-  }
-
-  key_t key_own= ftok(homedir, SERVER_SEED);
-
-  if(( server_queue_id = msgget(key_own, 0777 | IPC_CREAT )) == -1 ){
+  if(( server_queue_id = mq_open(SERVER_NAME, O_WRONLY)) < 0 ){
+    printf("ERROR: %s",strerror(errno));
     exit(1);
   }
 }
 
 
 void set_up_own_queue(){
-  if(( queue_id = msgget(IPC_PRIVATE, 0777 | IPC_CREAT )) == -1 ){
+  struct mq_attr attr;
+  attr.mq_flags = O_NONBLOCK;
+  attr.mq_maxmsg = 10;
+  attr.mq_msgsize = sizeof(mesg);
+  attr.mq_curmsgs = 0;
+  CLIENT_NAME[0] = '/';
+  sprintf(&CLIENT_NAME[1],"%d",getpid());
+  printf("%s\n",CLIENT_NAME );
+  mq_unlink(CLIENT_NAME);
+  if(( queue_id = mq_open(CLIENT_NAME, O_RDONLY | O_CREAT | O_NONBLOCK,0777,&attr)) == -1 ){
+    printf("EXIT ON OWN QUEUE\n" );
     exit(1);
   }
 }
 
 void init_mesg(){
-  mesg.priority = INIT_PRIOR;
-  printf("ququeid : %d\n",queue_id );
   mesg.id = queue_id;
   mesg.type = INIT;
+  strcpy(mesg.mesg_text,CLIENT_NAME);
+  send_message(INIT_PRIOR);
 
-  send_message();
-
-  msgrcv(queue_id,&mesg,mesg_size(),0,0);
+  while(mq_receive(queue_id,(char*)&mesg,sizeof(mesg),NULL) == -1)
 
   if(mesg.id == -1){
     exit(-1);
@@ -118,9 +126,8 @@ void parent_read(){
 
             if(strcmp(token,"LIST") == 0 ){
               token = strtok_r(the_rest," ",&the_rest);
-              mesg.priority = LIST_PRIOR;
               mesg.type = LIST;
-              send_message();
+              send_message(LIST_PRIOR);
 
             }else if(strcmp(token,"FRIENDS")==0){
               if(the_rest == NULL){
@@ -128,54 +135,46 @@ void parent_read(){
               }else{
                 strcpy(mesg.mesg_text,the_rest);
               }
-              mesg.priority = FRIENDS_PRIOR;
               mesg.type = FRIENDS;
-              send_message();
+              send_message(FRIENDS_PRIOR);
             }else if(strcmp(token,"ADD")==0){
               if(the_rest == NULL){
                 printf("ADD COMMAND REQUIRES ARGUEMNTS\n");
               }else{
                 strcpy(mesg.mesg_text,the_rest);
-                mesg.priority = ADD_PRIOR;
                 mesg.type = ADD;
-                send_message();
+                send_message(ADD_PRIOR);
               }
 
             }else if(strcmp(token,"DEL")==0){
               if(the_rest == NULL){
                 printf("ADD COMMAND REQUIRES ARGUEMNTS\n");
               }else{
-                mesg.priority = DEL_PRIOR;
                 mesg.type = DEL;
                 printf("SENDING DEL\n" );
                 strcpy(mesg.mesg_text,the_rest);
-                send_message();
+                send_message(DEL_PRIOR);
               }
             }else if(strcmp(token,"2ALL")==0){
-              mesg.priority = ALL2_PRIOR;
-              mesg.type = ALL2;
 
+              mesg.type = ALL2;
               strcpy(mesg.mesg_text,the_rest);
-              send_message();
+              send_message(ALL2_PRIOR);
             }else if(strcmp(token,"2FRIENDS")==0){
 
-              mesg.priority = FRIENDS2_PRIOR;
               mesg.type = FRIENDS2;
               strcpy(mesg.mesg_text,the_rest);
-              send_message();
+              send_message(FRIENDS2_PRIOR);
             }else if(strcmp(token,"2ONE")==0){
-
-              mesg.priority = ONE2_PRIOR;
               mesg.type = ONE2;
               strcpy(mesg.mesg_text,the_rest);
-              send_message();
+              send_message(ONE2_PRIOR);
             }else if(strcmp(token,"STOP")==0){
               exit(0);
             }else if(strcmp(token,"ECHO")==0){
-              mesg.priority = ECHO_PRIOR;
               mesg.type = ECHO;
               strcpy(mesg.mesg_text,the_rest);
-              send_message();
+              send_message(ECHO_PRIOR);
             }else{
               printf("MALFORMED INPUT: %s\n",buff);
               printf("COMMANDS: [ECHO string] [LIST] [FRIENDS clients_id_list] [2ALL string] [2FRIENDS string] [2ONE client_id string] [STOP] \n");
@@ -183,7 +182,7 @@ void parent_read(){
             }
         }
 
-        if( msgrcv(queue_id,&mesg,mesg_size(),PRIORITY,IPC_NOWAIT) != -1 ){
+        if( mq_receive(queue_id,(char*)&mesg,sizeof(mesg),NULL) != -1 ){
           switch(mesg.type){
             case LIST :
               printf("LIST: %s\n",mesg.mesg_text);
@@ -248,8 +247,9 @@ void child_write()
              fclose(f);
            }
          }else{
-          if(buff[0]!='\n')
+          if(buff[0]!='\n'){
             write(p[1], buff, SIZE);
+          }
         }
         free(tmp);
     }

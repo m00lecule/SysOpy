@@ -11,29 +11,45 @@
 #include <pwd.h>
 #include "chat_headers.h"
 #include <string.h>
+#include <mqueue.h>
+#include <fcntl.h>
+
+
+#include <limits.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <signal.h>
+#include <time.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <mqueue.h>
 
 #define CLIENT_NO 30
 
 static struct mesg_buffer mesg;
-static int queue_id = -1;
-
+static mqd_t queue_id = -1;
 static int friends[CLIENT_NO][CLIENT_NO];
-static int client_list[CLIENT_NO];
+static mqd_t client_list[CLIENT_NO];
 
 
 void exit_function(){
   struct mesg_buffer exit_message;
-  exit_message.priority = STOP_PRIOR;
   exit_message.type = STOP;
 
   for(int i = 0 ; i < CLIENT_NO ; ++i){
     if(client_list[i]!= -1){
-      msgsnd(client_list[i],&exit_message,mesg_size(),0);
+      mq_send(client_list[i],(const char*)&exit_message,sizeof(mesg),STOP_PRIOR);
     }
   }
 
-    if(queue_id != -1)
-      msgctl(queue_id, IPC_RMID, NULL);
+    if(queue_id != -1){
+      mq_close(queue_id);
+      mq_unlink(SERVER_NAME);
+    }
 }
 
 void delete_client_friends_list(int client_id){
@@ -70,22 +86,21 @@ void list_clients(){
 }
 
 
-void send_message_to_client(int client_id){
+void send_message_to_client(int client_id,int priority){
 
   if(client_id < CLIENT_NO && client_list[client_id] != -1){
     printf("RECEPIENT: %d \n",client_list[client_id]);
-    msgsnd(client_list[client_id],&mesg,mesg_size(),0);
+    mq_send(client_list[client_id],(char*)&mesg,sizeof(mesg_buffer),priority);
   }
 }
 
 
-int add_client(int queue_id){
+int add_client(mqd_t queue_id){
   for( int i = 0 ; i < CLIENT_NO ; ++i)
-    if(client_list[i] == -1){
+    if(client_list[i] == (mqd_t)-1){
       client_list[i]=queue_id;
       return i;
     }
-
   return -1;
 }
 
@@ -121,15 +136,21 @@ void delete_from_friend_list(int client_id, char* str){
 
 void init_handle(){
   short client_id;
-  if( (client_id = add_client(mesg.id)) == -1){
+  mqd_t list = mq_open(mesg.mesg_text,O_WRONLY);
+
+  if( list < 0){
+      printf("ERROR: %s",strerror(errno));
+     return;
+  }
+
+  if( (client_id = add_client(list)) == -1){
     // how to handle this shit
   }
 
   printf("RECEIVED INIT FROM %d\n",client_id);
   mesg.type = INIT;
-  mesg.priority=INIT_PRIOR;
   mesg.id = client_id;
-  send_message_to_client(client_id);
+  send_message_to_client(client_id,INIT_PRIOR);
 }
 
 void list_handle(){
@@ -138,8 +159,7 @@ void list_handle(){
   list_clients();
   printf("%s\n",mesg.mesg_text );
   mesg.type = LIST;
-  mesg.priority=LIST_PRIOR;
-  send_message_to_client(client_id);
+  send_message_to_client(client_id,LIST_PRIOR);
 }
 
 void all2_handle(){
@@ -157,8 +177,8 @@ void all2_handle(){
   strcpy(mesg.mesg_text,buff);
 
   for(int i = 0 ; i < CLIENT_NO ; ++i)
-    if(client_list[i]!= -1)
-      send_message_to_client(i);
+    if(client_list[i]!= (mqd_t)-1)
+      send_message_to_client(i,ALL2_PRIOR);
 
 }
 
@@ -177,7 +197,7 @@ void friends2_handle(){
 
   for(int i = 0 ; i < CLIENT_NO ; ++i)
     if(friends[mesg.id][i])
-      send_message_to_client(i);
+      send_message_to_client(i,FRIENDS2_PRIOR);
 }
 
 
@@ -196,6 +216,7 @@ void del_handle(){
 void stop_handle(){
   printf("RECEIVED STOP FROM %d\n",mesg.id);
   delete_client_friends_list(mesg.id);
+  mq_close(client_list[mesg.id]);
   client_list[mesg.id]=-1;
 }
 
@@ -208,7 +229,7 @@ void echo_handle(){
   strcat(buff,mesg.mesg_text);
   strcpy(mesg.mesg_text,buff);
   printf("SENDING TO %d\n",client_list[mesg.id]);
-  send_message_to_client(mesg.id);
+  send_message_to_client(mesg.id,ECHO_PRIOR);
 }
 
 void one2_handle(){
@@ -225,7 +246,7 @@ void one2_handle(){
   strcat(buff,buff2);
   strcat(buff,ptr);
   strcpy(mesg.mesg_text,buff);
-  send_message_to_client(client_id);
+  send_message_to_client(client_id,ONE2_PRIOR);
 }
 
 void friends_handle(){
@@ -244,7 +265,7 @@ void check_client_list(){
 
 void set_up_client_list(){
   for( int i = 0 ; i < CLIENT_NO ; ++i){
-    client_list[i]= -1;
+    client_list[i]= (mqd_t)-1;
 
     for(int j = 0 ; j < CLIENT_NO ; ++j)
       friends[i][j]=0;
@@ -253,16 +274,15 @@ void set_up_client_list(){
 
 
 void set_up_server_queue_id(){
-  const char *homedir;
-
-  if ((homedir = getenv("HOME")) == NULL) {
-      homedir = getpwuid(getuid())->pw_dir;
-  }
-
-  key_t key_own= ftok(homedir, SERVER_SEED);
-
-  if(( queue_id = msgget(key_own, 0777 | IPC_CREAT )) == -1 ){
-    printf("exit\n" );
+  mq_unlink(SERVER_NAME);
+  struct mq_attr attr;
+  attr.mq_flags = O_NONBLOCK;
+  attr.mq_maxmsg = 10;
+  attr.mq_msgsize = sizeof(mesg);
+  attr.mq_curmsgs = 0;
+  if(( queue_id = mq_open(SERVER_NAME,O_RDONLY | O_CREAT, 0777,&attr )) == -1 ){
+    printf("EXIT on QUEUE\n" );
+    printf("ERROR:%s\n",strerror(errno));
     exit(1);
   }
 }
@@ -283,7 +303,7 @@ int main(int argc, char** argv){
 
   while(1){
 
-    if(msgrcv(queue_id,&mesg,mesg_size(),0,IPC_NOWAIT) != -1){
+    if(mq_receive(queue_id,(char *)&mesg,sizeof(mesg),NULL) != -1){
       switch (mesg.type) {
         case INIT:
           init_handle();
@@ -296,7 +316,6 @@ int main(int argc, char** argv){
         case ECHO:
           echo_handle();
           break;
-
 
         case ALL2:
           all2_handle();
