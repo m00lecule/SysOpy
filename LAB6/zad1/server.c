@@ -52,7 +52,7 @@ void print_friend_list(int client_id){
       printf("%d ",i);
     }
 
-
+    printf("\n");
 }
 
 void list_clients(){
@@ -95,12 +95,12 @@ void add_to_friend_list(int client_id,char* str){
   char * ptr = str;
   char * token = strtok_r(ptr," ",&ptr);
   while(ptr!=NULL && token!=NULL ){
-    int index = strtol(token,NULL,10);
-    if(index >=0 && index < CLIENT_NO){
-      printf("added friend %d\n",index );
-      friends[client_id][index] = 1;
+    if(strcmp(token,"\0")!= 0 && strcmp(token,"\n")!=0){
+      int index = strtol(token,NULL,10);
+      if(index >=0 && index < CLIENT_NO){
+        friends[client_id][index] = 1;
+      }
     }
-
     token = strtok_r(ptr," ",&ptr);
   }
 }
@@ -110,11 +110,12 @@ void delete_from_friend_list(int client_id, char* str){
   char * token = strtok_r(ptr," ",&ptr);
 
   while(ptr!=NULL && token!=NULL ){
-    int index = strtol(token,NULL,10);
+    if(strcmp(token,"\0")!= 0 && strcmp(token,"\n")!=0){
+      int index = strtol(token,NULL,10);
 
-    if(index >=0 && index < CLIENT_NO)
-      friends[client_id][index] = 0;
-
+      if(index >=0 && index < CLIENT_NO)
+        friends[client_id][index] = 0;
+      }
     token = strtok_r(ptr," ",&ptr);
   }
 }
@@ -207,7 +208,6 @@ void echo_handle(){
   strftime(buff, 100, "%Y-%m-%d_%H-%M-%S ", localtime(&curr_time));
   strcat(buff,mesg.mesg_text);
   strcpy(mesg.mesg_text,buff);
-  printf("SENDING TO %d\n",client_list[mesg.id]);
   send_message_to_client(mesg.id);
 }
 

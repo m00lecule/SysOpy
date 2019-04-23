@@ -84,5 +84,7 @@ int main(int argc, char** argv){
       pipe_call(line);
   }
 
+  fclose(f);
+
   return 0;
 }

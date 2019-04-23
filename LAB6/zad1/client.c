@@ -132,7 +132,7 @@ void parent_read(){
               mesg.type = FRIENDS;
               send_message();
             }else if(strcmp(token,"ADD")==0){
-              if(the_rest == NULL){
+              if(strcmp(the_rest,"\0") == 0 ||strcmp(the_rest,"\n") == 0   ){
                 printf("ADD COMMAND REQUIRES ARGUEMNTS\n");
               }else{
                 strcpy(mesg.mesg_text,the_rest);
@@ -142,12 +142,11 @@ void parent_read(){
               }
 
             }else if(strcmp(token,"DEL")==0){
-              if(the_rest == NULL){
-                printf("ADD COMMAND REQUIRES ARGUEMNTS\n");
+              if(strcmp(the_rest,"\0") == 0 ||strcmp(the_rest,"\n") == 0   ){
+                printf("DEL COMMAND REQUIRES ARGUEMNTS\n");
               }else{
                 mesg.priority = DEL_PRIOR;
                 mesg.type = DEL;
-                printf("SENDING DEL\n" );
                 strcpy(mesg.mesg_text,the_rest);
                 send_message();
               }
