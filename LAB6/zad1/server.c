@@ -39,8 +39,9 @@ void exit_function(){
 void delete_client_friends_list(int client_id){
 
   if(client_id>=0 && client_id < CLIENT_NO)
-    for(int i = 0 ; i < CLIENT_NO ; ++i)
+    for(int i = 0 ; i < CLIENT_NO ; ++i){
       friends[client_id][i] = 0;
+    }
 }
 
 

@@ -88,7 +88,7 @@ void list_clients(){
 void send_message_to_client(int client_id,int priority){
 
   if(client_id < CLIENT_NO && client_list[client_id] != -1){
-    printf("RECEPIENT: %d \n",client_list[client_id]);
+    // printf("RECEPIENT: %d \n",client_list[client_id]);
     mq_send(client_list[client_id],(char*)&mesg,sizeof(mesg_buffer),priority);
   }
 }
