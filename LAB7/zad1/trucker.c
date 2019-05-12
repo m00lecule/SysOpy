@@ -22,8 +22,7 @@
 
 int mutex;
 int shared_int;
-int shared_pid;
-int shared_time;
+int shared_size;
 void * shared = NULL;
 int * ptr_int = NULL;
 pid_t * ptr_pid = NULL;
@@ -60,6 +59,8 @@ int main(int argc, char** argv){
     printf("ARGUMENTS : [K - max parcel num] [M - max parcels weight] [X - max truck load]\n");
     return 1;
   }
+
+  shared_size = (K+3)*sizeof(int) + K*sizeof(pid_t) + K*sizeof(struct timeval);
 
   init_semaphores_and_shared_int();
   union semun arg;
@@ -131,8 +132,6 @@ void exit_fun(void){
 
   semctl(mutex,0,IPC_RMID,0);
   shmctl(shared_int,IPC_RMID,NULL);
-  shmctl(shared_pid,IPC_RMID,NULL);
-  shmctl(shared_time,IPC_RMID,NULL);
 }
 
 void sigint_handle(int sig){
@@ -157,23 +156,7 @@ void init_semaphores_and_shared_int(){
      exit(1);
   }
 
-  if((shared_pid = shmget(shared_key + 1, K * sizeof(pid_t),0666 | IPC_CREAT)) == -1){
-    exit(1);
-  }
-
-  if((ptr_pid = (pid_t*) shmat(shared_pid,NULL,0)) == (void *)-1){
-    exit(1);
-  }
-
-  if((shared_time = shmget(shared_key+2,K * sizeof(struct timeval),0666 | IPC_CREAT)) == -1){
-    exit(1);
-  }
-
-  if((ptr_time = (struct timeval*) shmat(shared_time,NULL,0)) == (void *)-1){
-    exit(1);
-  }
-
-  if((shared_int = shmget(shared_key,(K + 3)*sizeof(int),0666 | IPC_CREAT)) == -1){
+  if((shared_int = shmget(shared_key,shared_size,0666 | IPC_CREAT)) == -1){
     exit(1);
   }
 
@@ -188,6 +171,8 @@ void init_semaphores_and_shared_int(){
   ptr_load = &ptr_int[2];
 
   ptr_int = &ptr_int[3];
+  ptr_pid = (pid_t*)&ptr_int[K];
+  ptr_time = (struct timeval*)&ptr_pid[K];
 
   for(int i = 0 ; i < K ; ++i){
     ptr_int[i]=-1;

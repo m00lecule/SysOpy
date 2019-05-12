@@ -25,8 +25,7 @@
 int mutex;
 
 int shared_int;
-int shared_pid;
-int shared_time;
+int shared_size;
 
 int * ptr_int;
 pid_t * ptr_pid;
@@ -80,8 +79,6 @@ void exit_fun(void){
   semop(mutex,&sem_action,1);
 
   shmdt((void*)ptr_int);
-  shmdt((void*)ptr_time);
-  shmdt((void*)ptr_pid);
 }
 
 void loader_action(){
@@ -144,22 +141,6 @@ void init_semaphores_and_shared_int(){
     exit(1);
   }
 
-  if((shared_pid = shmget(shared_key + 1,0,0666)) == -1){
-    exit(1);
-  }
-
-  if((ptr_pid = (pid_t*)shmat(shared_pid,NULL,0)) == (void *)-1){
-    exit(1);
-  }
-
-  if((shared_time = shmget(shared_key+2,0,0666)) == -1){
-    exit(1);
-  }
-
-  if((ptr_time = (struct timeval*) shmat(shared_time,NULL,0)) == (void *)-1){
-    exit(1);
-  }
-
   if((shared_int = shmget(shared_key,0,0666)) == -1){
     exit(1);
   }
@@ -172,4 +153,6 @@ void init_semaphores_and_shared_int(){
   M = ptr_int[1];
   load = &ptr_int[2];
   ptr_int = &ptr_int[3];
+  ptr_pid = (pid_t*)&ptr_int[K];
+  ptr_time = (struct timeval *)&ptr_pid[K];
 }

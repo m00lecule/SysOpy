@@ -1,8 +1,6 @@
 #define key_trucker "\\michaldygas"
 #define key_loader "\\michaldygas1"
 #define shared_key_int "\\int"
-#define shared_key_pid "\\pid"
-#define shared_key_time "\\time"
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/sem.h>
@@ -28,9 +26,6 @@ sem_t * mutex_trucker;
 sem_t * mutex_loaders;
 
 int shared_int;
-int shared_pid;
-int shared_time;
-
 void * shared = NULL;
 int * ptr_int = NULL;
 pid_t * ptr_pid = NULL;
@@ -39,7 +34,7 @@ int * ptr_load;
 int K;
 int M;
 int X;
-
+int shared_size;
 
 void init_semaphores_and_shared_int();
 void exit_fun(void);
@@ -60,6 +55,8 @@ int main(int argc, char** argv){
     printf("ARGUMENTS : [K - max parcel num] [M - max parcels weight] [X - max truck load]\n");
     return 1;
   }
+
+  shared_size = (K+3)*sizeof(int) + K*sizeof(pid_t) + K*sizeof(struct timeval);
 
   init_semaphores_and_shared_int();
 
@@ -120,89 +117,39 @@ void exit_fun(void){
   sem_close(mutex_trucker);
 
   shm_unlink(shared_key_int);
-  shm_unlink(shared_key_pid);
-  shm_unlink(shared_key_time);
 
   if(shared != NULL)
-    munmap(shared,(K+3)*sizeof(int));
-
-  if(ptr_pid != NULL)
-    munmap(ptr_pid,K*sizeof(pid_t));
-
-  if(ptr_time != NULL)
-    munmap(ptr_time,K*sizeof(struct timeval));
+    munmap(shared,shared_size);
 }
 
 void sigint_handle(int sig){
-  exit_fun();
   exit(1);
 }
 
 
 void init_semaphores_and_shared_int(){
   if((mutex_trucker = sem_open(key_trucker, O_RDWR | O_CREAT, 0666, 0)) == SEM_FAILED){
-    printf("1\n");
     exit_fun();
     exit(1);
   }
 
   if((mutex_loaders = sem_open(key_loader, O_RDWR | O_CREAT, 0666, 1)) == SEM_FAILED){
-    printf("2\n");
     exit_fun();
     exit(1);
   }
 
   if((shared_int = shm_open(shared_key_int,O_RDWR | O_CREAT,0666)) == -1){
-    printf("3\n");
-    exit_fun();
-    exit(1);
-  }
-
-  if((shared_pid = shm_open(shared_key_pid,O_RDWR | O_CREAT,0666)) == -1){
-    printf("4\n");
-    exit_fun();
-    exit(1);
-  }
-
-  if((shared_time = shm_open(shared_key_time,O_RDWR | O_CREAT,0666)) == -1){
-    printf("5\n");
     exit_fun();
     exit(1);
   }
 
 
-  if((ftruncate(shared_int,(K)*sizeof(int))) == -1){
-    printf("6\n");
+  if((ftruncate(shared_int,shared_size) == -1)){
     exit_fun();
     exit(1);
   }
 
-  if((ftruncate(shared_pid,(K)*sizeof(pid_t))) == -1){
-    printf("7\n");
-    exit_fun();
-    exit(1);
-  }
-
-  if((ftruncate(shared_time,(K)*sizeof(struct timeval))) == -1){
-    printf("8\n");
-    exit_fun();
-    exit(1);
-  }
-
-  if((ptr_int =(int *) mmap(NULL,(K)*sizeof(int),PROT_READ | PROT_WRITE, MAP_SHARED ,shared_int,0)) == (void *) -1){
-    printf("9\n");
-    exit_fun();
-    exit(1);
-  }
-
-  if((ptr_pid =(pid_t *) mmap(NULL,(K)*sizeof(pid_t),PROT_READ | PROT_WRITE,  MAP_SHARED ,shared_pid,0)) == (void *) -1){
-    printf("10\n");
-    exit_fun();
-    exit(1);
-  }
-
-  if((ptr_time =(struct timeval *) mmap(NULL,(K)*sizeof(struct timeval),PROT_READ | PROT_WRITE,  MAP_SHARED ,shared_time,0)) == (void *) -1){
-    printf("11\n");
+  if((ptr_int =(int *) mmap(NULL,shared_size,PROT_READ | PROT_WRITE, MAP_SHARED ,shared_int,0)) == (void *) -1){
     exit_fun();
     exit(1);
   }
@@ -215,6 +162,8 @@ void init_semaphores_and_shared_int(){
   ptr_load = &ptr_int[2];
 
   ptr_int = &ptr_int[3];
+  ptr_pid = (pid_t *)&ptr_int[K];
+  ptr_time = (struct timeval *)&ptr_pid[K];
 
   for(int i = 0 ; i < K ; ++i){
     ptr_int[i]=-1;

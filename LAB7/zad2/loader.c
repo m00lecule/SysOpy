@@ -22,8 +22,6 @@
 #include <sys/shm.h>
 #define key_trucker "\\michaldygas"
 #define key_loader "\\michaldygas1"
-#define shared_key_int "\\int"
-#define shared_key_pid "\\pid"
 #define shared_key_time "\\time"
 
 #define SLEEP_TIME 1
@@ -32,8 +30,6 @@ sem_t * mutex_trucker;
 sem_t * mutex_loaders;
 
 int shared_int;
-int shared_pid;
-int shared_time;
 
 void * shared = NULL;
 int * ptr_int = NULL;
@@ -45,6 +41,7 @@ int M;
 int * load;
 int C = -1;
 int worker_load;
+int shared_size;
 
 union semun {
   int val;
@@ -85,13 +82,7 @@ void exit_fun(void){
   sem_post(mutex_loaders);
 
   if(ptr_int!=NULL)
-    munmap(shared,(K+3)*sizeof(int));
-
-  if(ptr_pid!=NULL)
-    munmap(ptr_pid,(K)*sizeof(pid_t));
-
- if(ptr_time!=NULL)
-    munmap(ptr_time,(K)*sizeof(struct timeval));
+    munmap(shared,shared_size);
 
   sem_close(mutex_loaders);
   sem_close(mutex_trucker);
@@ -108,15 +99,6 @@ void loader_action(){
     exit(1);
   }
 
-  //printf("%d entered\n",getpid() );
-
-//  int * int_pointer = (int* )shared;
-
-  // for(int i = 0 ; i < K + 3 ; ++i){
-  //   printf("%d ", int_pointer[i]);
-  // }
-
-  //printf("\n");
   if(*(load) + worker_load < M ){
     *(load) += worker_load;
     printf("LOADER %d: W: %d load: %d \n",getpid(),worker_load,*(load));
@@ -167,14 +149,6 @@ void init_semaphores_and_shared_int(){
     exit(1);
   }
 
-  if((shared_pid = shm_open(shared_key_pid, O_RDWR ,0666)) == -1){
-    exit(1);
-  }
-
-  if((shared_time = shm_open(shared_key_time, O_RDWR ,0666)) == -1){
-    exit(1);
-  }
-
 
   if((ptr_int =(int *) mmap(NULL,(2)*sizeof(int),PROT_READ | PROT_WRITE, MAP_SHARED,shared_int,0)) == (void *) -1){
     exit(1);
@@ -183,22 +157,20 @@ void init_semaphores_and_shared_int(){
   K = ptr_int[0];
   M = ptr_int[1];
 
-  if((ptr_int =(int *) mmap(NULL,(K + 3)*sizeof(int),PROT_READ | PROT_WRITE, MAP_SHARED,shared_int,0)) == (void *) -1){
+  munmap(ptr_int,2*sizeof(int));
+
+  shared_size = (K+3)*sizeof(int) + K*sizeof(pid_t) + K*sizeof(struct timeval);
+
+  if((ptr_int =(int *) mmap(NULL,shared_size,PROT_READ | PROT_WRITE, MAP_SHARED,shared_int,0)) == (void *) -1){
     exit(1);
   }
 
-
-  if((ptr_pid =(pid_t *) mmap(NULL,(K)*sizeof(pid_t),PROT_READ | PROT_WRITE, MAP_SHARED,shared_pid,0)) == (void *) -1){
-    exit(1);
-  }
-
-  if((ptr_time =(struct timeval *) mmap(NULL,(K)*sizeof(struct timeval),PROT_READ | PROT_WRITE, MAP_SHARED,shared_time,0)) == (void *) -1){
-    exit(1);
-  }
 
   shared = (void* )ptr_int;
   load = &ptr_int[2];
 
 
   ptr_int = &ptr_int[3];
+  ptr_pid = (pid_t *)&ptr_int[K];
+  ptr_time = (struct timeval *)&ptr_pid[K];
 }
