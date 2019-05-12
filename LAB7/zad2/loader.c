@@ -18,19 +18,27 @@
 #include <time.h>
 #include <string.h>
 #include <sys/time.h>
+#include <sys/mman.h>
+#include <sys/shm.h>
+#define key_trucker "\\michaldygas"
+#define key_loader "\\michaldygas1"
+#define shared_key_int "\\int"
+#define shared_key_pid "\\pid"
+#define shared_key_time "\\time"
 
-#define key 51
-#define shared_key 15
 #define SLEEP_TIME 1
-int mutex;
+
+sem_t * mutex_trucker;
+sem_t * mutex_loaders;
 
 int shared_int;
 int shared_pid;
 int shared_time;
 
-int * ptr_int;
-pid_t * ptr_pid;
-struct timeval * ptr_time;
+void * shared = NULL;
+int * ptr_int = NULL;
+pid_t * ptr_pid = NULL;
+struct timeval * ptr_time = NULL;
 
 int K;
 int M;
@@ -73,41 +81,51 @@ int main(int argc, char** argv){
 }
 
 void exit_fun(void){
-  struct sembuf sem_action;
-  sem_action.sem_flg = SEM_UNDO;
-  sem_action.sem_num = 1;
-  sem_action.sem_op = 1;
-  semop(mutex,&sem_action,1);
 
-  shmdt((void*)ptr_int);
-  shmdt((void*)ptr_time);
-  shmdt((void*)ptr_pid);
+  sem_post(mutex_loaders);
+
+  if(ptr_int!=NULL)
+    munmap(shared,(K+3)*sizeof(int));
+
+  if(ptr_pid!=NULL)
+    munmap(ptr_pid,(K)*sizeof(pid_t));
+
+ if(ptr_time!=NULL)
+    munmap(ptr_time,(K)*sizeof(struct timeval));
+
+  sem_close(mutex_loaders);
+  sem_close(mutex_trucker);
+
 }
 
 void loader_action(){
-  struct sembuf sem_action;
-  sem_action.sem_flg = SEM_UNDO;
   struct timeval currtime;
   gettimeofday(&currtime,NULL);
 
-  sem_action.sem_num = 1;
-  sem_action.sem_op = -1;
-  semop(mutex,&sem_action,1);
+  sem_wait(mutex_loaders);
 
   if(*(load) == -1){
     exit(1);
   }
 
+  //printf("%d entered\n",getpid() );
+
+//  int * int_pointer = (int* )shared;
+
+  // for(int i = 0 ; i < K + 3 ; ++i){
+  //   printf("%d ", int_pointer[i]);
+  // }
+
+  //printf("\n");
   if(*(load) + worker_load < M ){
     *(load) += worker_load;
-    printf("LOADER %d: W: %d \n",getpid(),worker_load);
+    printf("LOADER %d: W: %d load: %d \n",getpid(),worker_load,*(load));
     fflush(stdout);
     for( int i = 0 ; i < K ; ++i){
       if(ptr_int[i] == -1){
         ptr_int[i] = worker_load;
         ptr_pid[i] = getpid();
         ptr_time[i] = currtime;
-
         if( i == K - 1 || *(load) == M){
 
           for(int j = 0 ; j < K ; ++j){
@@ -116,60 +134,71 @@ void loader_action(){
 
           printf("WAITING FOR TRUCK TO LOAD\n");
           fflush(stdout);
-          sem_action.sem_num = 0;
-          sem_action.sem_op = 1;
-          semop(mutex,&sem_action,1);
+          sem_post(mutex_trucker);
         }else{
-          sem_action.sem_num = 1;
-          sem_action.sem_op = 1;
-          semop(mutex,&sem_action,1);
+          sem_post(mutex_loaders);
+          usleep(10);
         }
-
         break;
       }
     }
+
     //HERES POTENTIAL DEADLOCK IF ANY DATARACE HAPPENS
   }else{
     //CANT PUT PARCEL ON LOADING TAPE - LETS TAKE A BREAK FROM WORK
-    sem_action.sem_num = 1;
-    sem_action.sem_op = 1;
-    semop(mutex,&sem_action,1);
+    printf("cant put %d %d %d\n",getpid(),*(load),worker_load );
+    sem_post(mutex_loaders);
     sleep(SLEEP_TIME);
   }
 }
 
 
 void init_semaphores_and_shared_int(){
-  if((mutex = semget(key,2,0666)) == -1){
+
+  if((mutex_trucker = sem_open(key_trucker, O_RDWR )) == SEM_FAILED){
     exit(1);
   }
 
-  if((shared_pid = shmget(shared_key + 1,0,0666)) == -1){
+  if((mutex_loaders = sem_open(key_loader, O_RDWR )) == SEM_FAILED){
     exit(1);
   }
 
-  if((ptr_pid = (pid_t*)shmat(shared_pid,NULL,0)) == (void *)-1){
+  if((shared_int = shm_open(shared_key_int, O_RDWR ,0666)) == -1){
     exit(1);
   }
 
-  if((shared_time = shmget(shared_key+2,0,0666)) == -1){
+  if((shared_pid = shm_open(shared_key_pid, O_RDWR ,0666)) == -1){
     exit(1);
   }
 
-  if((ptr_time = (struct timeval*) shmat(shared_time,NULL,0)) == (void *)-1){
+  if((shared_time = shm_open(shared_key_time, O_RDWR ,0666)) == -1){
     exit(1);
   }
 
-  if((shared_int = shmget(shared_key,0,0666)) == -1){
-    exit(1);
-  }
 
-  if((ptr_int = (int *) shmat(shared_int,NULL,0)) == (void *)-1){
+  if((ptr_int =(int *) mmap(NULL,(2)*sizeof(int),PROT_READ | PROT_WRITE, MAP_SHARED,shared_int,0)) == (void *) -1){
     exit(1);
   }
 
   K = ptr_int[0];
   M = ptr_int[1];
+
+  if((ptr_int =(int *) mmap(NULL,(K + 3)*sizeof(int),PROT_READ | PROT_WRITE, MAP_SHARED,shared_int,0)) == (void *) -1){
+    exit(1);
+  }
+
+
+  if((ptr_pid =(pid_t *) mmap(NULL,(K)*sizeof(pid_t),PROT_READ | PROT_WRITE, MAP_SHARED,shared_pid,0)) == (void *) -1){
+    exit(1);
+  }
+
+  if((ptr_time =(struct timeval *) mmap(NULL,(K)*sizeof(struct timeval),PROT_READ | PROT_WRITE, MAP_SHARED,shared_time,0)) == (void *) -1){
+    exit(1);
+  }
+
+  shared = (void* )ptr_int;
   load = &ptr_int[2];
+
+
   ptr_int = &ptr_int[3];
 }
