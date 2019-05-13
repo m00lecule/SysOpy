@@ -22,7 +22,7 @@
 #include <sys/shm.h>
 #define key_trucker "\\michaldygas"
 #define key_loader "\\michaldygas1"
-#define shared_key_time "\\time"
+#define shared_key_int "\\int"
 
 #define SLEEP_TIME 1
 
@@ -138,19 +138,23 @@ void loader_action(){
 void init_semaphores_and_shared_int(){
 
   if((mutex_trucker = sem_open(key_trucker, O_RDWR )) == SEM_FAILED){
+    perror("Couldnt open truckers mutex");
     exit(1);
   }
 
-  if((mutex_loaders = sem_open(key_loader, O_RDWR )) == SEM_FAILED){
+  if((mutex_loaders = sem_open(key_loader, O_RDWR  )) == SEM_FAILED){
+    perror("Couldnt open loaders mutex");
     exit(1);
   }
 
   if((shared_int = shm_open(shared_key_int, O_RDWR ,0666)) == -1){
+    perror("Couldnt open shared memory");
     exit(1);
   }
 
 
   if((ptr_int =(int *) mmap(NULL,(2)*sizeof(int),PROT_READ | PROT_WRITE, MAP_SHARED,shared_int,0)) == (void *) -1){
+    perror("Couldnt map shared memory");
     exit(1);
   }
 
@@ -162,6 +166,7 @@ void init_semaphores_and_shared_int(){
   shared_size = (K+3)*sizeof(int) + K*sizeof(pid_t) + K*sizeof(struct timeval);
 
   if((ptr_int =(int *) mmap(NULL,shared_size,PROT_READ | PROT_WRITE, MAP_SHARED,shared_int,0)) == (void *) -1){
+    perror("Couldnt reopen shared memory");
     exit(1);
   }
 

@@ -86,7 +86,7 @@ int main(int argc, char** argv){
 
     load = 0;
     int i;
-    for(i = 0 ; i < K && load + ptr_int[i] <= X; ++i){
+    for(i = 0 ; i < K &&ptr_int[i] != -1 && load + ptr_int[i] <= X; ++i){
       gettimeofday(&currtime,NULL);
       load +=ptr_int[i];
       printf("TRUCK %d: SPACE: %d W: %d, PID: %d , T: %f\n",getpid(), X - load ,ptr_int[i],ptr_pid[i],time_diff(ptr_time[i],currtime));

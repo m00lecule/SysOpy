@@ -138,14 +138,17 @@ void loader_action(){
 
 void init_semaphores_and_shared_int(){
   if((mutex = semget(key,2,0666)) == -1){
+    perror("Mutex doesnt exist");
     exit(1);
   }
 
   if((shared_int = shmget(shared_key,0,0666)) == -1){
+    perror("Shared memory doesnt exist");
     exit(1);
   }
 
   if((ptr_int = (int *) shmat(shared_int,NULL,0)) == (void *)-1){
+    perror("Couldnt map shared memory");
     exit(1);
   }
 

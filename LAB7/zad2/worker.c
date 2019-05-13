@@ -17,8 +17,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#define shared_key_pid "\\pid"
+
+int shared_int;
+int * ptr_int;
+pid_t * child_pid = NULL;
 
 int N;
+int shared_size;
 
 void spawning_loaders(char**);
 
@@ -39,6 +45,8 @@ int main(int argc, char** argv){
   }
 
   while (wait(NULL) > 0);
+
+//  munmap(shared_int,shared_size);
 
   return 0;
 }

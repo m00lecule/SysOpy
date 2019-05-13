@@ -1,6 +1,8 @@
 #define key_trucker "\\michaldygas"
 #define key_loader "\\michaldygas1"
 #define shared_key_int "\\int"
+#define shared_key_pid "\\pid"
+
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/sem.h>
@@ -46,6 +48,7 @@ double time_diff(struct timeval x, struct timeval y);
 int main(int argc, char** argv){
 
   signal(SIGINT,sigint_handle);
+  atexit(exit_fun);
 
   if( argc == 4){
     K = atoi(argv[1]);
@@ -74,7 +77,7 @@ int main(int argc, char** argv){
 
     load = 0;
     int i;
-    for(i = 0 ; i < K && load + ptr_int[i] <= X; ++i){
+    for(i = 0 ; i < K && ptr_int[i] != -1 &&  load + ptr_int[i] <= X; ++i){
       gettimeofday(&currtime,NULL);
       load +=ptr_int[i];
       printf("TRUCK %d: SPACE: %d W: %d, PID: %d , T: %f\n",getpid(), X - load ,ptr_int[i],ptr_pid[i],time_diff(ptr_time[i],currtime));
@@ -105,8 +108,7 @@ int main(int argc, char** argv){
 void exit_fun(void){
 
   if(ptr_int != NULL){
-    ptr_int = (int*) shared;
-    ptr_int[2] = -1;
+    *(ptr_load) = -1;
   }
 
   sem_post(mutex_loaders);
@@ -116,16 +118,41 @@ void exit_fun(void){
   sem_close(mutex_loaders);
   sem_close(mutex_trucker);
 
+  int load = 0;
+  int i;
+
+  struct timeval currtime;
+  for(i = 0 ; i < K && ptr_int[i] != -1 &&  load + ptr_int[i] <= X; ++i){
+    gettimeofday(&currtime,NULL);
+    load +=ptr_int[i];
+    printf("TRUCK %d: SPACE: %d W: %d, PID: %d , T: %f\n",getpid(), X - load ,ptr_int[i],ptr_pid[i],time_diff(ptr_time[i],currtime));
+  }
+  *ptr_load -= load;
+
+  for(int j = i ; j < K ; ++j){
+    ptr_int[j-i] = ptr_int[j];
+    ptr_pid[j-i] = ptr_pid[j];
+    ptr_time[j-i] = ptr_time[j];
+  }
+
+  for(int j = K - i ; j < K ; ++j ){
+    ptr_int[j]=-1;
+  }
+
+  for(int j = 0 ; j < K ; ++j ){
+    printf("%d ",ptr_int[j]);
+  }
+
+
   shm_unlink(shared_key_int);
 
   if(shared != NULL)
     munmap(shared,shared_size);
 }
 
-void sigint_handle(int sig){
+void sigint_handle(int no){
   exit(1);
 }
-
 
 void init_semaphores_and_shared_int(){
   if((mutex_trucker = sem_open(key_trucker, O_RDWR | O_CREAT, 0666, 0)) == SEM_FAILED){
