@@ -40,10 +40,9 @@ int shared_size;
 
 void init_semaphores_and_shared_int();
 void exit_fun(void);
+void unload_shared_memory();
 void sigint_handle();
 double time_diff(struct timeval x, struct timeval y);
-
-
 
 int main(int argc, char** argv){
 
@@ -63,8 +62,6 @@ int main(int argc, char** argv){
 
   init_semaphores_and_shared_int();
 
-  int load;
-  struct timeval currtime;
 
   while(1){
 
@@ -73,31 +70,8 @@ int main(int argc, char** argv){
 
     sem_post(mutex_loaders);
     sem_wait(mutex_trucker);
-    usleep(10);
 
-    load = 0;
-    int i;
-    for(i = 0 ; i < K && ptr_int[i] != -1 &&  load + ptr_int[i] <= X; ++i){
-      gettimeofday(&currtime,NULL);
-      load +=ptr_int[i];
-      printf("TRUCK %d: SPACE: %d W: %d, PID: %d , T: %f\n",getpid(), X - load ,ptr_int[i],ptr_pid[i],time_diff(ptr_time[i],currtime));
-    }
-    *ptr_load -= load;
-
-    for(int j = i ; j < K ; ++j){
-      ptr_int[j-i] = ptr_int[j];
-      ptr_pid[j-i] = ptr_pid[j];
-      ptr_time[j-i] = ptr_time[j];
-    }
-
-
-    for(int j = K - i ; j < K ; ++j ){
-      ptr_int[j]=-1;
-    }
-
-    for(int j = 0 ; j < K ; ++j ){
-      printf("%d ",ptr_int[j]);
-    }
+    unload_shared_memory();
 
     printf("Truck is fully loaded\n");
   }
@@ -112,37 +86,16 @@ void exit_fun(void){
   }
 
   sem_post(mutex_loaders);
+  sem_post(mutex_loaders);
+
 
   sem_unlink(key_trucker);
   sem_unlink(key_loader);
   sem_close(mutex_loaders);
   sem_close(mutex_trucker);
 
-  int load = 0;
-  int i;
-
-  struct timeval currtime;
-  for(i = 0 ; i < K && ptr_int[i] != -1 &&  load + ptr_int[i] <= X; ++i){
-    gettimeofday(&currtime,NULL);
-    load +=ptr_int[i];
-    printf("TRUCK %d: SPACE: %d W: %d, PID: %d , T: %f\n",getpid(), X - load ,ptr_int[i],ptr_pid[i],time_diff(ptr_time[i],currtime));
-  }
-  *ptr_load -= load;
-
-  for(int j = i ; j < K ; ++j){
-    ptr_int[j-i] = ptr_int[j];
-    ptr_pid[j-i] = ptr_pid[j];
-    ptr_time[j-i] = ptr_time[j];
-  }
-
-  for(int j = K - i ; j < K ; ++j ){
-    ptr_int[j]=-1;
-  }
-
-  for(int j = 0 ; j < K ; ++j ){
-    printf("%d ",ptr_int[j]);
-  }
-
+  sleep(1);
+  unload_shared_memory();
 
   shm_unlink(shared_key_int);
 
@@ -195,6 +148,34 @@ void init_semaphores_and_shared_int(){
   for(int i = 0 ; i < K ; ++i){
     ptr_int[i]=-1;
   }
+}
+
+void unload_shared_memory(){
+  int load = 0;
+  struct timeval currtime;
+  int i;
+  for(i = 0 ; i < K && ptr_int[i] != -1 &&  load + ptr_int[i] <= X; ++i){
+    gettimeofday(&currtime,NULL);
+    load +=ptr_int[i];
+    printf("TRUCK %d: SPACE: %d W: %d, PID: %d , T: %f\n",getpid(), X - load ,ptr_int[i],ptr_pid[i],time_diff(ptr_time[i],currtime));
+  }
+  *ptr_load -= load;
+
+  for(int j = i ; j < K ; ++j){
+    ptr_int[j-i] = ptr_int[j];
+    ptr_pid[j-i] = ptr_pid[j];
+    ptr_time[j-i] = ptr_time[j];
+  }
+
+
+  for(int j = K - i ; j < K ; ++j ){
+    ptr_int[j]=-1;
+  }
+
+  for(int j = 0 ; j < K ; ++j ){
+    printf("%d ",ptr_int[j]);
+  }
+
 }
 
 double time_diff(struct timeval x , struct timeval y){

@@ -42,6 +42,7 @@ union semun {
 void init_semaphores_and_shared_int();
 void exit_fun(void);
 void sigint_handle();
+void unload_shared_memory();
 double time_diff(struct timeval x, struct timeval y);
 
 
@@ -66,9 +67,6 @@ int main(int argc, char** argv){
   union semun arg;
   struct sembuf sem_action;
   sem_action.sem_flg = SEM_UNDO;
-  int load;
-  struct timeval currtime;
-
   while(1){
 
     printf("Empty truck arrives\n");
@@ -84,30 +82,7 @@ int main(int argc, char** argv){
     sem_action.sem_op = -1;
     semop(mutex,&sem_action,1);
 
-    load = 0;
-    int i;
-    for(i = 0 ; i < K &&ptr_int[i] != -1 && load + ptr_int[i] <= X; ++i){
-      gettimeofday(&currtime,NULL);
-      load +=ptr_int[i];
-      printf("TRUCK %d: SPACE: %d W: %d, PID: %d , T: %f\n",getpid(), X - load ,ptr_int[i],ptr_pid[i],time_diff(ptr_time[i],currtime));
-    }
-    *ptr_load -= load;
-
-    for(int j = i ; j < K ; ++j){
-      ptr_int[j-i] = ptr_int[j];
-      ptr_pid[j-i] = ptr_pid[j];
-      ptr_time[j-i] = ptr_time[j];
-    }
-
-
-    for(int j = K - i ; j < K ; ++j ){
-      ptr_int[j]=-1;
-    }
-
-    for(int j = 0 ; j < K ; ++j ){
-      printf("%d ",ptr_int[j]);
-    }
-
+    unload_shared_memory();
     printf("Truck is fully loaded\n");
 
     arg.val = 0;
@@ -122,14 +97,15 @@ int main(int argc, char** argv){
 void exit_fun(void){
 
   if(ptr_int != NULL){
-    ptr_int = (int*) shared;
-    ptr_int[2] = -1;
+    *(ptr_load) = -1;
   }
 
   union semun arg;
   arg.val = 1;
   semctl(mutex, 1, SETVAL, arg);
 
+  sleep(1);
+  unload_shared_memory();
   semctl(mutex,0,IPC_RMID,0);
   shmctl(shared_int,IPC_RMID,NULL);
 }
@@ -176,6 +152,33 @@ void init_semaphores_and_shared_int(){
 
   for(int i = 0 ; i < K ; ++i){
     ptr_int[i]=-1;
+  }
+}
+
+void unload_shared_memory(){
+  int load = 0;
+  struct timeval currtime;
+  int i;
+  for(i = 0 ; i < K &&ptr_int[i] != -1 && load + ptr_int[i] <= X; ++i){
+    gettimeofday(&currtime,NULL);
+    load +=ptr_int[i];
+    printf("TRUCK %d: SPACE: %d W: %d, PID: %d , T: %f\n",getpid(), X - load ,ptr_int[i],ptr_pid[i],time_diff(ptr_time[i],currtime));
+  }
+  *ptr_load -= load;
+
+  for(int j = i ; j < K ; ++j){
+    ptr_int[j-i] = ptr_int[j];
+    ptr_pid[j-i] = ptr_pid[j];
+    ptr_time[j-i] = ptr_time[j];
+  }
+
+
+  for(int j = K - i ; j < K ; ++j ){
+    ptr_int[j]=-1;
+  }
+
+  for(int j = 0 ; j < K ; ++j ){
+    printf("%d ",ptr_int[j]);
   }
 }
 

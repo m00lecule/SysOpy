@@ -119,7 +119,7 @@ void loader_action(){
           sem_post(mutex_trucker);
         }else{
           sem_post(mutex_loaders);
-          usleep(10);
+          usleep(100);
         }
         break;
       }

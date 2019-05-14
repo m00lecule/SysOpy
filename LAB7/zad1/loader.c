@@ -120,6 +120,7 @@ void loader_action(){
           sem_action.sem_num = 1;
           sem_action.sem_op = 1;
           semop(mutex,&sem_action,1);
+          usleep(100);
         }
 
         break;
