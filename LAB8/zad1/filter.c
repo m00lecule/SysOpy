@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
+#define MIN(x, y) ((x) > (y) ? (y) : (x))
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -10,21 +11,41 @@
 #include <pthread.h>
 #include <math.h>
 #include <sys/time.h>
-#define MAXLENGT 1024
+#define MAXLENGT 10000
 
 int W;
 int H;
 int C;
 int M;
+int MAX_VAL = 0;
 unsigned short * I = NULL;
 float * K = NULL;
 unsigned short * J = NULL;
+pthread_t * threads = NULL;
+int* args = NULL;
 
-typedef struct args{
-  int index;
-  int index1;
-}args;
 
+
+void exit_fun(){
+  if( I != NULL){
+    free(I);
+  }
+
+  if( K != NULL){
+    free(K);
+  }
+
+  if(J != NULL){
+    free(J);
+  }
+  if(threads != NULL){
+    free(threads);
+  }
+
+  if(args!=NULL){
+    free(args);
+  }
+}
 
 void get_image(const char* name ){
   FILE * fp;
@@ -32,10 +53,13 @@ void get_image(const char* name ){
   size_t len = 0;
   ssize_t read;
 
-  fp = fopen(name, "r");
-  if (fp == NULL)
-      exit(EXIT_FAILURE);
+  if((fp = fopen(name, "r")) == NULL){
+    printf("Couldnt open image %s",name );
+    exit(1);
+  }
 
+  if((read = getline(&line, &len, fp)) != -1) {
+  }
   if((read = getline(&line, &len, fp)) != -1) {
   }
 
@@ -53,15 +77,16 @@ void get_image(const char* name ){
   }
 
   int i = 0;
-  int j = 0;
   char* ptr = NULL;
+  const char* delim = " \n\r";
   while ((read = getline(&line, &len, fp)) != -1) {
-      j = 0;
-      while((ptr = strtok_r(line, " " ,&line))){
-        sscanf(ptr,"%hu",I + i*W + j);
-        j++;
+      ptr = strtok(line,delim);
+      while(ptr != NULL){
+        sscanf(ptr,"%hu",&I[i]);
+        //printf("%s %d %hu \n",ptr,i,I[i]);
+        ptr = strtok(NULL,delim);
+        i++;
     }
-      i++;
   }
 }
 
@@ -71,32 +96,21 @@ void get_filter(const char * name){
   size_t len = 0;
   ssize_t read;
 
-  fp = fopen(name, "r");
-  if (fp == NULL)
-      exit(1);
-
-  if((read = getline(&line, &len, fp)) != -1) {
+  if((fp = fopen(name, "r"))==NULL){
+    exit(1);
   }
 
   if((read = getline(&line, &len, fp)) != -1) {
-      sscanf(line,"%d %d",&C,&C);
+      sscanf(line,"%d",&C);
       K = (float *)malloc(C*C*sizeof(float));
   }
 
-
-  if((read = getline(&line, &len, fp)) != -1) {
-  }
-
   int i = 0;
-  int j = 0;
   char* ptr = NULL;
-  while ((read = getline(&line, &len, fp)) != -1) {
-      j = 0;
+  if((read = getline(&line, &len, fp)) != -1) {
       while((ptr = strtok_r(line, " " ,&line))){
-        sscanf(ptr,"%f",K + i*C + j);
-        j++;
+        sscanf(ptr,"%f",K + i++);
     }
-      i++;
   }
 }
 
@@ -133,7 +147,7 @@ void splot(int x){
     sum = 0;
     for(int i = 0 ; i < C ; ++i){
       for(int j = 0 ; j < C ; ++j){
-        sum+=I[(MAX(0,x - (int)ceil(C/2) + i)) + (MAX(0,y - (int)ceil(C/2) + j))*W] * K[(i) + (j)*C];
+        sum+=I[MIN(MAX(0,x - (int)ceil(C/2) + i),W-1) + ( MIN(MAX(0,y - (int)ceil(C/2) + j), H -1 ))*W] * K[(i) + (j)*C];
       }
     }
 
@@ -193,60 +207,80 @@ void create_file(const char * name){
   char buff[MAXLENGT];
   char buff_digit[20];
 
-  FILE * fp = fopen(name,"ab+");
-
+  FILE * fp = fopen(name,"w+");
+  sprintf(buff_digit,"P2\n%d %d\n255\n",W,H);
+  fwrite(buff_digit,sizeof(char),strlen(buff_digit),fp);
   for(int i = 0 ; i < H ; ++i){
-    buff[0]='\0';
+    buff[0] = '\0';
     for(int j = 0 ; j < W -1 ; ++j){
         sprintf(buff_digit,"%hu ",J[j + i * W]);
         strcat(buff,buff_digit);
     }
     sprintf(buff_digit,"%hu\n",J[W-1 + i * W]);
     strcat(buff,buff_digit);
-    if(fwrite(buff,sizeof(char),strlen(buff),fp));
+
+    if(i != H -1)
+      if(fwrite(buff,sizeof(char),strlen(buff),fp));
   }
 
-}
+  if(fwrite(buff,sizeof(char),strlen(buff)-1,fp));
 
-
-void * thread_fun(void* input){
-  printf("tid: %ld %d\n",pthread_self(),*(int*)input);
-  int * ret = (int *)malloc(1*sizeof(int));
-
-  *(ret) = *((int*)input);
-  *(ret)+=1;
-  pthread_exit(ret);
+  fclose(fp);
 }
 
 int main(int argc, char** argv){
 
-  get_image(argv[1]);
-  get_filter("f.txt");
+  atexit(exit_fun);
 
-  const int N = 5;
+  if(argc != 6){
+    printf("ARGS : [THREADS NO] [block/interleaved] [image file name] [filter file name] [filtered file name]\n");
+    return 0;
+  }
+
+  get_image(argv[3]);
+  get_filter(argv[4]);
+
+  int N = atoi(argv[1]);
   M=N;
-  pthread_t threads[N];
-  int args[N];
+  threads = (pthread_t *)malloc(N*sizeof(pthread_t));
+  args = (int *) malloc(N*sizeof(int));
   void * ret;
+  double sum = 0;
+  double main_time_difference = 0;
+
+  void * (*fun_ptr)(void *) = NULL;
+
+  if(strcmp(argv[2],"block") ==0 ){
+    fun_ptr=&block_fun;
+  }else if(strcmp(argv[2],"interleaved") == 0){
+    fun_ptr=&interleaved;
+  }else{
+    exit(1);
+  }
+
+
+  struct timeval t1,t2;
+  gettimeofday(&t1,NULL);
 
   for(int i = 0 ; i < N ; ++i){
     args[i]=i;
-    pthread_create(threads + i , NULL, block_fun,(void *)&args[i]);
+    pthread_create(threads + i , NULL, fun_ptr,(void *)&args[i]);
   }
-
 
   for(int i = 0 ; i < N ; ++i){
     pthread_join(threads[i],&ret);
-    printf("%f\n",*(double*)ret);
-
+    sum += *(double*)ret;
     free(ret);
   }
 
-  print_filtered_image();
+  // print_filtered_image();
 
-  create_file("michal.txt");
-  free(I);
-  free(K);
-  free(J);
+  create_file(argv[5]);
+  gettimeofday(&t2,NULL);
+  main_time_difference = time_diff(t1,t2);
+  printf("W:%d H:%d \n",W,H);
+  printf("MAIN : %f\n",main_time_difference );
+  printf("THREADS : %f\n",sum);
+
   return 0;
 }
