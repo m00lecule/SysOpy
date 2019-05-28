@@ -18,7 +18,7 @@ test:
 			for type in block interleaved; do \
 				for thread in 5 20 40; do \
 					echo "\n\n=======================\n$$image F:$$frame $$type T:$$thread" >> $(LOG) ;\
-					./filter $$thread $$type $${image}.ascii.pgm filter_$${frame}.txt $${image}_$${thread}_$${type}_$${frame}.txt >> $(LOG) ;\
+					./filter $$thread $$type $${image}.ascii.pgm filter_$${frame}.txt $${image}_$${thread}_$${type}_$${frame}.pgm >> $(LOG) ;\
 					done \
 			done \
 		done \

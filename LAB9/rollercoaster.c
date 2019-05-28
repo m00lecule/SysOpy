@@ -2,18 +2,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
+#include <string.h>
+#include <sys/time.h>
+
+#define SHORT_DELAY usleep(1000)
+#define LONG_DELAY usleep(10000)
 
 volatile unsigned int cur_trolley = 0;
 unsigned int trolley_no;
 unsigned int passenger_no;
 volatile unsigned int capacity;
 volatile unsigned int cur_capacity;
+unsigned int who_should_press_start;
+struct timeval start;
 int n = 0;
-
 
 pthread_mutex_t * trolley_mutex = NULL;
 pthread_mutex_t load_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t empty_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t load_to_trolley = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t start_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int * trolley_arg = NULL;
 int * passenger_arg = NULL;
@@ -22,7 +31,18 @@ pthread_t *passenger_thread;
 
 pthread_cond_t empty_cond;
 pthread_cond_t* load_cond = NULL;
-pthread_mutex_t load_to_trolley;
+pthread_cond_t start_cond;
+
+double time_diff(struct timeval x , struct timeval y){
+    double x_ms , y_ms , diff;
+
+    x_ms = (double)x.tv_sec*1000000 + (double)x.tv_usec;
+    y_ms = (double)y.tv_sec*1000000 + (double)y.tv_usec;
+
+    diff = (double)y_ms - (double)x_ms;
+
+    return diff;
+}
 
 void exit_fun(){
   if(trolley_mutex != NULL){
@@ -86,11 +106,17 @@ void init_dynamic_memory(){
     if((load_cond = (pthread_cond_t *)malloc(trolley_no * sizeof(pthread_cond_t))) == NULL){
       exit(1);
     }
+
+  gettimeofday(&start,NULL);
 }
 
 
 void * trolley_fun(void* arg){
   int no = *(int*)arg;
+  struct timeval trolley_time;
+  double time_period;
+  pthread_mutex_unlock(&load_to_trolley);
+
   if(no == 0){
     pthread_mutex_lock(&load_to_trolley);
   }
@@ -103,7 +129,10 @@ void * trolley_fun(void* arg){
     }
     /***/
 
-    printf("TROLLEY %d ARRIVES\n",no );
+    gettimeofday(&trolley_time,NULL);
+    time_period = time_diff(start,trolley_time);
+
+    printf("TROLLEY %d ARRIVES T:%d\n",no,(int)time_period );
     fflush(stdout);
 
     //unload the trolley
@@ -116,7 +145,14 @@ void * trolley_fun(void* arg){
       pthread_cond_wait(&empty_cond,&empty_mutex);
     }
 
-    printf("TROLLEY %d STARTS LOADING PASSENGERS\n",no );
+    //picking one who should press start
+    who_should_press_start = (unsigned int) (rand() % capacity);
+
+
+    gettimeofday(&trolley_time,NULL);
+    time_period = time_diff(start,trolley_time);
+
+    printf("TROLLEY %d STARTS LOADING PASSENGERS, %d SHOULD PRESS START T:%d\n",no,who_should_press_start,(int)time_period );
     fflush(stdout);
 
 
@@ -124,19 +160,20 @@ void * trolley_fun(void* arg){
     pthread_mutex_lock(&trolley_mutex[no]);
     pthread_mutex_unlock(&load_to_trolley);
 
-
-
     //;ast passener should give a notice
     pthread_cond_wait(&empty_cond,&empty_mutex);
     //closing the doors
-
 
     ++cur_trolley;
     cur_trolley%=trolley_no;
 
 
     cur_capacity=0;
-    printf("TROLLEY %d DEPARTURE\n",no );
+
+    gettimeofday(&trolley_time,NULL);
+    time_period = time_diff(start,trolley_time);
+
+    printf("TROLLEY %d DEPARTURE T:%d\n",no,(int)time_period );
     fflush(stdout);
 
     pthread_cond_signal(&load_cond[cur_trolley]);
@@ -153,7 +190,11 @@ void * trolley_fun(void* arg){
   }
   /***/
 
-  printf("TROLLEY %d ARRIVES\n",no );
+
+  gettimeofday(&trolley_time,NULL);
+  time_period = time_diff(start,trolley_time);
+
+  printf("TROLLEY %d ARRIVES T:%d\n",no,(int)time_period );
   fflush(stdout);
   //unload the trolley
 
@@ -168,7 +209,11 @@ void * trolley_fun(void* arg){
   cur_trolley%=trolley_no;
 
 
-  printf("TROLLEY %d ENDS HIS SHIFT\n",no );
+  gettimeofday(&trolley_time,NULL);
+  time_period = time_diff(start,trolley_time);
+
+  cur_capacity=capacity;
+  printf("TROLLEY %d ENDS HIS SHIFT T:%d\n",no,(int)time_period );
   fflush(stdout);
   pthread_cond_signal(&load_cond[cur_trolley]);
   pthread_mutex_unlock(&load_mutex);
@@ -181,28 +226,60 @@ void * trolley_fun(void* arg){
 
 void * passenger_fun(void* arg){
   int no = *(int*)arg;
+  double time_period;
+  struct timeval passenger_time;
 
   while(1){
     //wait for room
     pthread_mutex_lock(&load_to_trolley);
     //pack
-    printf("PASSENGER %d LOADING\n",no );
+
+
+    gettimeofday(&passenger_time,NULL);
+    time_period = time_diff(start,passenger_time);
+    printf("PASSENGER %d LOADING T:%d\n",no,(int) time_period );
     fflush(stdout);
+
     ++cur_capacity;
 
-    if(cur_capacity == capacity){
-      printf("WAS LAST PASSENGER %d\n",no );
+    if(who_should_press_start == cur_capacity -1 && who_should_press_start != capacity -1){
+      pthread_mutex_unlock(&load_to_trolley);
+      pthread_cond_wait(&start_cond,&start_mutex);
+
+      gettimeofday(&passenger_time,NULL);
+      time_period = time_diff(start,passenger_time);
+
+      printf("PRESSES START %d T: %d\n",no, (int)time_period );
       fflush(stdout);
       pthread_cond_signal(&empty_cond);
       pthread_mutex_unlock(&empty_mutex);
     }else{
-      pthread_mutex_unlock(&load_to_trolley);
+      if(cur_capacity == capacity){
+        if(who_should_press_start != capacity -1){
+          pthread_cond_signal(&start_cond);
+          pthread_mutex_unlock(&start_mutex);
+        }else{
+
+          gettimeofday(&passenger_time,NULL);
+          time_period = time_diff(start,passenger_time);
+
+          printf("PRESSES START %d T: %d\n",no,(int)time_period );
+          fflush(stdout);
+          pthread_cond_signal(&empty_cond);
+          pthread_mutex_unlock(&empty_mutex);
+        }
+      }else{
+        pthread_mutex_unlock(&load_to_trolley);
+      }
     }
 
     pthread_mutex_lock(&trolley_mutex[cur_trolley]);
     //unpack
 
-    printf("UNPACKING %d %d\n",no,cur_capacity);
+    gettimeofday(&passenger_time,NULL);
+    time_period = time_diff(start,passenger_time);
+
+    printf("UNPACKING %d %d T: %d\n",no,cur_capacity,(int)time_period);
     fflush(stdout);
     if(--cur_capacity == 0){
       pthread_cond_signal(&empty_cond);
@@ -236,10 +313,18 @@ void wait_for_trolley(){
 }
 
 int main(int argc, char** argv){
-  trolley_no = 2;
-  passenger_no = 13;
-  capacity = 5;
-  n = 20;
+  srand(time(NULL));
+
+  if(argc !=  5){
+    printf("ARGS: [TROLLEY NO] [PASSENGER NO] [CAPACITY] [LOOPS]\n");
+    return 1;
+  }
+
+  trolley_no = atoi(argv[1]);
+  passenger_no = atoi(argv[2]);
+  capacity = atoi(argv[3]);
+  n = atoi(argv[4]);
+
 
   init_dynamic_memory();
   init_trolley();

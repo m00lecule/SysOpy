@@ -1,672 +1,672 @@
-Wnioski: im więcej wątków tym skraca się wykonanie programu, jednak średnio czas procesora zużyty przez wątki rośnie -> jest to spowodowane wielowątkowością procesora i lepszymi możliwościami dopasowania zadań przez planistę. Im większy obraz oraz filtr tym czas wykonania zadania wzrasta.
+
 
 =======================
 balloons F:5 block T:5
-W:640 H:480
-MAIN : 57152.000000
-THREADS : 113708.000000
+W:640 H:480 
+MAIN : 55303.000000
+THREADS : 114728.000000
 
 
 =======================
 balloons F:5 block T:20
-W:640 H:480
-MAIN : 57739.000000
-THREADS : 136022.000000
+W:640 H:480 
+MAIN : 52391.000000
+THREADS : 225043.000000
 
 
 =======================
 balloons F:5 block T:40
-W:640 H:480
-MAIN : 50197.000000
-THREADS : 138342.000000
+W:640 H:480 
+MAIN : 50870.000000
+THREADS : 157226.000000
 
 
 =======================
 balloons F:5 interleaved T:5
-W:640 H:480
-MAIN : 56998.000000
-THREADS : 114326.000000
+W:640 H:480 
+MAIN : 54055.000000
+THREADS : 113212.000000
 
 
 =======================
 balloons F:5 interleaved T:20
-W:640 H:480
-MAIN : 51182.000000
-THREADS : 155348.000000
+W:640 H:480 
+MAIN : 62892.000000
+THREADS : 134507.000000
 
 
 =======================
 balloons F:5 interleaved T:40
-W:640 H:480
-MAIN : 52193.000000
-THREADS : 186141.000000
+W:640 H:480 
+MAIN : 53694.000000
+THREADS : 169199.000000
 
 
 =======================
 balloons F:10 block T:5
-W:640 H:480
-MAIN : 124617.000000
-THREADS : 448602.000000
+W:640 H:480 
+MAIN : -500110.000000
+THREADS : -2669013.000000
 
 
 =======================
 balloons F:10 block T:20
-W:640 H:480
-MAIN : 97910.000000
-THREADS : 946978.000000
+W:640 H:480 
+MAIN : 119015.000000
+THREADS : 719596.000000
 
 
 =======================
 balloons F:10 block T:40
-W:640 H:480
-MAIN : 99539.000000
-THREADS : 887972.000000
+W:640 H:480 
+MAIN : 96460.000000
+THREADS : 669907.000000
 
 
 =======================
 balloons F:10 interleaved T:5
-W:640 H:480
-MAIN : 125908.000000
-THREADS : 449562.000000
+W:640 H:480 
+MAIN : 121910.000000
+THREADS : 447307.000000
 
 
 =======================
 balloons F:10 interleaved T:20
-W:640 H:480
-MAIN : 96492.000000
-THREADS : 616625.000000
+W:640 H:480 
+MAIN : 106657.000000
+THREADS : 575428.000000
 
 
 =======================
 balloons F:10 interleaved T:40
-W:640 H:480
-MAIN : 104045.000000
-THREADS : 580051.000000
+W:640 H:480 
+MAIN : 105418.000000
+THREADS : 749971.000000
 
 
 =======================
 balloons F:20 block T:5
-W:640 H:480
-MAIN : 397875.000000
-THREADS : 1785882.000000
+W:640 H:480 
+MAIN : 398971.000000
+THREADS : 1789441.000000
 
 
 =======================
 balloons F:20 block T:20
-W:640 H:480
-MAIN : 284042.000000
-THREADS : 3819978.000000
+W:640 H:480 
+MAIN : 291673.000000
+THREADS : 4036382.000000
 
 
 =======================
 balloons F:20 block T:40
-W:640 H:480
-MAIN : 277919.000000
-THREADS : 7894149.000000
+W:640 H:480 
+MAIN : 268638.000000
+THREADS : 5815044.000000
 
 
 =======================
 balloons F:20 interleaved T:5
-W:640 H:480
-MAIN : 396619.000000
-THREADS : 1784709.000000
+W:640 H:480 
+MAIN : 396283.000000
+THREADS : 1783456.000000
 
 
 =======================
 balloons F:20 interleaved T:20
-W:640 H:480
-MAIN : 282049.000000
-THREADS : 3899360.000000
+W:640 H:480 
+MAIN : 274623.000000
+THREADS : 3826622.000000
 
 
 =======================
 balloons F:20 interleaved T:40
-W:640 H:480
-MAIN : 276518.000000
-THREADS : 6082660.000000
+W:640 H:480 
+MAIN : 278598.000000
+THREADS : 8680612.000000
 
 
 =======================
 balloons F:60 block T:5
-W:640 H:480
-MAIN : 3377439.000000
-THREADS : 16179281.000000
+W:640 H:480 
+MAIN : 3371514.000000
+THREADS : 16158934.000000
 
 
 =======================
 balloons F:60 block T:20
-W:640 H:480
-MAIN : 2198354.000000
-THREADS : 39908364.000000
+W:640 H:480 
+MAIN : 2281207.000000
+THREADS : 41762817.000000
 
 
 =======================
 balloons F:60 block T:40
-W:640 H:480
-MAIN : 2155519.000000
-THREADS : 82668204.000000
+W:640 H:480 
+MAIN : 2244955.000000
+THREADS : 84451582.000000
 
 
 =======================
 balloons F:60 interleaved T:5
-W:640 H:480
-MAIN : 3341414.000000
-THREADS : 16114225.000000
+W:640 H:480 
+MAIN : 3431812.000000
+THREADS : 16774740.000000
 
 
 =======================
 balloons F:60 interleaved T:20
-W:640 H:480
-MAIN : 2165936.000000
-THREADS : 40205819.000000
+W:640 H:480 
+MAIN : 2406627.000000
+THREADS : 42494549.000000
 
 
 =======================
 balloons F:60 interleaved T:40
-W:640 H:480
-MAIN : 2167040.000000
-THREADS : 77750262.000000
+W:640 H:480 
+MAIN : 2451191.000000
+THREADS : 82806135.000000
 
 
 =======================
 barbara F:5 block T:5
-W:512 H:512
-MAIN : 46160.000000
-THREADS : 98058.000000
+W:512 H:512 
+MAIN : 63628.000000
+THREADS : 102185.000000
 
 
 =======================
 barbara F:5 block T:20
-W:512 H:512
-MAIN : 42568.000000
-THREADS : 124520.000000
+W:512 H:512 
+MAIN : 47940.000000
+THREADS : 116621.000000
 
 
 =======================
 barbara F:5 block T:40
-W:512 H:512
-MAIN : 39926.000000
-THREADS : 111225.000000
+W:512 H:512 
+MAIN : 45447.000000
+THREADS : 97565.000000
 
 
 =======================
 barbara F:5 interleaved T:5
-W:512 H:512
-MAIN : 46041.000000
-THREADS : 100297.000000
+W:512 H:512 
+MAIN : 48188.000000
+THREADS : 101206.000000
 
 
 =======================
 barbara F:5 interleaved T:20
-W:512 H:512
-MAIN : 42175.000000
-THREADS : 205784.000000
+W:512 H:512 
+MAIN : 46054.000000
+THREADS : 127035.000000
 
 
 =======================
 barbara F:5 interleaved T:40
-W:512 H:512
-MAIN : 43419.000000
-THREADS : 160132.000000
+W:512 H:512 
+MAIN : 56805.000000
+THREADS : 109229.000000
 
 
 =======================
 barbara F:10 block T:5
-W:512 H:512
-MAIN : 103898.000000
-THREADS : 382027.000000
+W:512 H:512 
+MAIN : 105009.000000
+THREADS : 390257.000000
 
 
 =======================
 barbara F:10 block T:20
-W:512 H:512
-MAIN : 93400.000000
-THREADS : 788979.000000
+W:512 H:512 
+MAIN : 84981.000000
+THREADS : 760002.000000
 
 
 =======================
 barbara F:10 block T:40
-W:512 H:512
-MAIN : 85099.000000
-THREADS : 834934.000000
+W:512 H:512 
+MAIN : 87186.000000
+THREADS : 879794.000000
 
 
 =======================
 barbara F:10 interleaved T:5
-W:512 H:512
-MAIN : 104243.000000
-THREADS : 383284.000000
+W:512 H:512 
+MAIN : 105620.000000
+THREADS : 391920.000000
 
 
 =======================
 barbara F:10 interleaved T:20
-W:512 H:512
-MAIN : 88098.000000
-THREADS : 609804.000000
+W:512 H:512 
+MAIN : 93468.000000
+THREADS : 792977.000000
 
 
 =======================
 barbara F:10 interleaved T:40
-W:512 H:512
-MAIN : 85562.000000
-THREADS : 804421.000000
+W:512 H:512 
+MAIN : 114411.000000
+THREADS : 714621.000000
 
 
 =======================
 barbara F:20 block T:5
-W:512 H:512
-MAIN : 341800.000000
-THREADS : 1551593.000000
+W:512 H:512 
+MAIN : 348203.000000
+THREADS : 1567749.000000
 
 
 =======================
 barbara F:20 block T:20
-W:512 H:512
-MAIN : 249966.000000
-THREADS : 3351264.000000
+W:512 H:512 
+MAIN : 258335.000000
+THREADS : 3336846.000000
 
 
 =======================
 barbara F:20 block T:40
-W:512 H:512
-MAIN : 230479.000000
-THREADS : 7006962.000000
+W:512 H:512 
+MAIN : 249347.000000
+THREADS : 7019483.000000
 
 
 =======================
 barbara F:20 interleaved T:5
-W:512 H:512
-MAIN : 361110.000000
-THREADS : 1562717.000000
+W:512 H:512 
+MAIN : 342862.000000
+THREADS : 1558653.000000
 
 
 =======================
 barbara F:20 interleaved T:20
-W:512 H:512
-MAIN : 278177.000000
-THREADS : 3921958.000000
+W:512 H:512 
+MAIN : 276132.000000
+THREADS : 4133469.000000
 
 
 =======================
 barbara F:20 interleaved T:40
-W:512 H:512
-MAIN : 239597.000000
-THREADS : 4992190.000000
+W:512 H:512 
+MAIN : 296994.000000
+THREADS : 6065515.000000
 
 
 =======================
 barbara F:60 block T:5
-W:512 H:512
-MAIN : 3001776.000000
-THREADS : 14787954.000000
+W:512 H:512 
+MAIN : 3067581.000000
+THREADS : 14931625.000000
 
 
 =======================
 barbara F:60 block T:20
-W:512 H:512
-MAIN : 2111916.000000
-THREADS : 37748868.000000
+W:512 H:512 
+MAIN : 2146651.000000
+THREADS : 36987671.000000
 
 
 =======================
 barbara F:60 block T:40
-W:512 H:512
-MAIN : 1924162.000000
-THREADS : 71934906.000000
+W:512 H:512 
+MAIN : 1805005.000000
+THREADS : 66418827.000000
 
 
 =======================
 barbara F:60 interleaved T:5
-W:512 H:512
-MAIN : 3088160.000000
-THREADS : 14940537.000000
+W:512 H:512 
+MAIN : 2993037.000000
+THREADS : 14632180.000000
 
 
 =======================
 barbara F:60 interleaved T:20
-W:512 H:512
-MAIN : 1972605.000000
-THREADS : 36950342.000000
+W:512 H:512 
+MAIN : 1937413.000000
+THREADS : 36280679.000000
 
 
 =======================
 barbara F:60 interleaved T:40
-W:512 H:512
-MAIN : 1933757.000000
-THREADS : 71485728.000000
+W:512 H:512 
+MAIN : 1912740.000000
+THREADS : 71394594.000000
 
 
 =======================
 coins F:5 block T:5
-W:300 H:246
-MAIN : 12568.000000
-THREADS : 27325.000000
+W:300 H:246 
+MAIN : 12840.000000
+THREADS : 27463.000000
 
 
 =======================
 coins F:5 block T:20
-W:300 H:246
-MAIN : 11437.000000
-THREADS : 39260.000000
+W:300 H:246 
+MAIN : 11793.000000
+THREADS : 30451.000000
 
 
 =======================
 coins F:5 block T:40
-W:300 H:246
-MAIN : 12139.000000
-THREADS : 30645.000000
+W:300 H:246 
+MAIN : 13882.000000
+THREADS : 29873.000000
 
 
 =======================
 coins F:5 interleaved T:5
-W:300 H:246
-MAIN : 12329.000000
-THREADS : 28208.000000
+W:300 H:246 
+MAIN : 12058.000000
+THREADS : 27259.000000
 
 
 =======================
 coins F:5 interleaved T:20
-W:300 H:246
-MAIN : 12912.000000
-THREADS : 33678.000000
+W:300 H:246 
+MAIN : 12902.000000
+THREADS : 37462.000000
 
 
 =======================
 coins F:5 interleaved T:40
-W:300 H:246
-MAIN : 12101.000000
-THREADS : 37306.000000
+W:300 H:246 
+MAIN : 12540.000000
+THREADS : 39620.000000
 
 
 =======================
 coins F:10 block T:5
-W:300 H:246
-MAIN : 28828.000000
-THREADS : 110307.000000
+W:300 H:246 
+MAIN : 28666.000000
+THREADS : 108231.000000
 
 
 =======================
 coins F:10 block T:20
-W:300 H:246
-MAIN : 25307.000000
-THREADS : 206832.000000
+W:300 H:246 
+MAIN : 24790.000000
+THREADS : 141332.000000
 
 
 =======================
 coins F:10 block T:40
-W:300 H:246
-MAIN : 24733.000000
-THREADS : 113688.000000
+W:300 H:246 
+MAIN : 29751.000000
+THREADS : 170561.000000
 
 
 =======================
 coins F:10 interleaved T:5
-W:300 H:246
-MAIN : 29039.000000
-THREADS : 108525.000000
+W:300 H:246 
+MAIN : 28663.000000
+THREADS : 107932.000000
 
 
 =======================
 coins F:10 interleaved T:20
-W:300 H:246
-MAIN : 32571.000000
-THREADS : 213808.000000
+W:300 H:246 
+MAIN : 36012.000000
+THREADS : 171851.000000
 
 
 =======================
 coins F:10 interleaved T:40
-W:300 H:246
-MAIN : 24698.000000
-THREADS : 217517.000000
+W:300 H:246 
+MAIN : 24007.000000
+THREADS : 130939.000000
 
 
 =======================
 coins F:20 block T:5
-W:300 H:246
-MAIN : 94893.000000
-THREADS : 429032.000000
+W:300 H:246 
+MAIN : 94642.000000
+THREADS : 429552.000000
 
 
 =======================
 coins F:20 block T:20
-W:300 H:246
-MAIN : 73947.000000
-THREADS : 723458.000000
+W:300 H:246 
+MAIN : 70500.000000
+THREADS : 547676.000000
 
 
 =======================
 coins F:20 block T:40
-W:300 H:246
-MAIN : 66525.000000
-THREADS : 658192.000000
+W:300 H:246 
+MAIN : 76160.000000
+THREADS : 1021233.000000
 
 
 =======================
 coins F:20 interleaved T:5
-W:300 H:246
-MAIN : 94485.000000
-THREADS : 428576.000000
+W:300 H:246 
+MAIN : 95334.000000
+THREADS : 428589.000000
 
 
 =======================
 coins F:20 interleaved T:20
-W:300 H:246
-MAIN : 79520.000000
-THREADS : 698508.000000
+W:300 H:246 
+MAIN : 74899.000000
+THREADS : 739461.000000
 
 
 =======================
 coins F:20 interleaved T:40
-W:300 H:246
-MAIN : 67854.000000
-THREADS : 1157327.000000
+W:300 H:246 
+MAIN : 69602.000000
+THREADS : 629614.000000
 
 
 =======================
 coins F:60 block T:5
-W:300 H:246
-MAIN : 799170.000000
-THREADS : 3861557.000000
+W:300 H:246 
+MAIN : 795834.000000
+THREADS : 3861385.000000
 
 
 =======================
 coins F:60 block T:20
-W:300 H:246
-MAIN : 537047.000000
-THREADS : 9029292.000000
+W:300 H:246 
+MAIN : 524903.000000
+THREADS : 8875861.000000
 
 
 =======================
 coins F:60 block T:40
-W:300 H:246
-MAIN : 482690.000000
-THREADS : 16140673.000000
+W:300 H:246 
+MAIN : 490107.000000
+THREADS : 17013582.000000
 
 
 =======================
 coins F:60 interleaved T:5
-W:300 H:246
-MAIN : 797441.000000
-THREADS : 3859164.000000
+W:300 H:246 
+MAIN : 798949.000000
+THREADS : 3865006.000000
 
 
 =======================
 coins F:60 interleaved T:20
-W:300 H:246
-MAIN : 525147.000000
-THREADS : 8838636.000000
+W:300 H:246 
+MAIN : 524664.000000
+THREADS : 9228405.000000
 
 
 =======================
 coins F:60 interleaved T:40
-W:300 H:246
-MAIN : 548254.000000
-THREADS : 15540620.000000
+W:300 H:246 
+MAIN : 517345.000000
+THREADS : 17648119.000000
 
 
 =======================
 feep F:5 block T:5
-W:24 H:7
-MAIN : 580.000000
-THREADS : 234.000000
+W:24 H:7 
+MAIN : 499.000000
+THREADS : 125.000000
 
 
 =======================
 feep F:5 block T:20
-W:24 H:7
-MAIN : 606.000000
-THREADS : 96.000000
+W:24 H:7 
+MAIN : 798.000000
+THREADS : 73.000000
 
 
 =======================
 feep F:5 block T:40
-W:24 H:7
-MAIN : 4909.000000
-THREADS : 4.000000
+W:24 H:7 
+MAIN : 2121.000000
+THREADS : 0.000000
 
 
 =======================
 feep F:5 interleaved T:5
-W:24 H:7
-MAIN : 793.000000
-THREADS : 274.000000
+W:24 H:7 
+MAIN : 315.000000
+THREADS : 70.000000
 
 
 =======================
 feep F:5 interleaved T:20
-W:24 H:7
-MAIN : 662.000000
-THREADS : 131.000000
+W:24 H:7 
+MAIN : 1729.000000
+THREADS : 77.000000
 
 
 =======================
 feep F:5 interleaved T:40
-W:24 H:7
-MAIN : 4394.000000
-THREADS : 69.000000
+W:24 H:7 
+MAIN : 1539.000000
+THREADS : 168.000000
 
 
 =======================
 feep F:10 block T:5
-W:24 H:7
-MAIN : 352.000000
-THREADS : 251.000000
+W:24 H:7 
+MAIN : 283.000000
+THREADS : 216.000000
 
 
 =======================
 feep F:10 block T:20
-W:24 H:7
-MAIN : 1058.000000
-THREADS : 310.000000
+W:24 H:7 
+MAIN : 759.000000
+THREADS : 264.000000
 
 
 =======================
 feep F:10 block T:40
-W:24 H:7
-MAIN : 1495.000000
+W:24 H:7 
+MAIN : 914.000000
 THREADS : 2.000000
 
 
 =======================
 feep F:10 interleaved T:5
-W:24 H:7
-MAIN : 293.000000
-THREADS : 253.000000
+W:24 H:7 
+MAIN : 316.000000
+THREADS : 268.000000
 
 
 =======================
 feep F:10 interleaved T:20
-W:24 H:7
-MAIN : 789.000000
-THREADS : 291.000000
+W:24 H:7 
+MAIN : 5042.000000
+THREADS : 311.000000
 
 
 =======================
 feep F:10 interleaved T:40
-W:24 H:7
-MAIN : 3412.000000
-THREADS : 272.000000
+W:24 H:7 
+MAIN : 1651.000000
+THREADS : 631.000000
 
 
 =======================
 feep F:20 block T:5
-W:24 H:7
-MAIN : 513.000000
-THREADS : 858.000000
+W:24 H:7 
+MAIN : 531.000000
+THREADS : 864.000000
 
 
 =======================
 feep F:20 block T:20
-W:24 H:7
-MAIN : 931.000000
-THREADS : 1045.000000
+W:24 H:7 
+MAIN : 1472.000000
+THREADS : 1233.000000
 
 
 =======================
 feep F:20 block T:40
-W:24 H:7
-MAIN : 1175.000000
-THREADS : 0.000000
+W:24 H:7 
+MAIN : 925.000000
+THREADS : 4.000000
 
 
 =======================
 feep F:20 interleaved T:5
-W:24 H:7
-MAIN : 461.000000
-THREADS : 997.000000
+W:24 H:7 
+MAIN : 616.000000
+THREADS : 969.000000
 
 
 =======================
 feep F:20 interleaved T:20
-W:24 H:7
-MAIN : 4462.000000
-THREADS : 1068.000000
+W:24 H:7 
+MAIN : 714.000000
+THREADS : 1091.000000
 
 
 =======================
 feep F:20 interleaved T:40
-W:24 H:7
-MAIN : 1176.000000
-THREADS : 1246.000000
+W:24 H:7 
+MAIN : 1192.000000
+THREADS : 1159.000000
 
 
 =======================
 feep F:60 block T:5
-W:24 H:7
-MAIN : 1770.000000
-THREADS : 7723.000000
+W:24 H:7 
+MAIN : 1740.000000
+THREADS : 7498.000000
 
 
 =======================
 feep F:60 block T:20
-W:24 H:7
-MAIN : 6527.000000
-THREADS : 7611.000000
+W:24 H:7 
+MAIN : 2617.000000
+THREADS : 7967.000000
 
 
 =======================
 feep F:60 block T:40
-W:24 H:7
-MAIN : 2800.000000
+W:24 H:7 
+MAIN : 1134.000000
 THREADS : 2.000000
 
 
 =======================
 feep F:60 interleaved T:5
-W:24 H:7
-MAIN : 3777.000000
-THREADS : 10275.000000
+W:24 H:7 
+MAIN : 3786.000000
+THREADS : 8812.000000
 
 
 =======================
 feep F:60 interleaved T:20
-W:24 H:7
-MAIN : 12500.000000
-THREADS : 15597.000000
+W:24 H:7 
+MAIN : 5817.000000
+THREADS : 9501.000000
 
 
 =======================
 feep F:60 interleaved T:40
-W:24 H:7
-MAIN : 4274.000000
-THREADS : 9605.000000
+W:24 H:7 
+MAIN : 4919.000000
+THREADS : 9810.000000
