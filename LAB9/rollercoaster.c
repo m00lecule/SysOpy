@@ -6,14 +6,13 @@
 #include <string.h>
 #include <sys/time.h>
 
-#define SHORT_DELAY usleep(1000)
-#define LONG_DELAY usleep(10000)
 
 volatile unsigned int cur_trolley = 0;
 unsigned int trolley_no;
 unsigned int passenger_no;
 volatile unsigned int capacity;
 volatile unsigned int cur_capacity;
+volatile unsigned int running_workers =1;
 unsigned int who_should_press_start;
 struct timeval start;
 int n = 0;
@@ -43,6 +42,16 @@ double time_diff(struct timeval x , struct timeval y){
 
     return diff;
 }
+
+// void passenger_exit(void* arg){
+//   double time_period;
+//   struct timeval passenger_time;
+//   gettimeofday(&passenger_time,NULL);
+//
+//
+//   time_period = time_diff(start,passenger_time);
+//   printf("P %d ENDS %d\n",*(int*)arg, (int)time_period );
+// }
 
 void exit_fun(){
   if(trolley_mutex != NULL){
@@ -115,11 +124,6 @@ void * trolley_fun(void* arg){
   int no = *(int*)arg;
   struct timeval trolley_time;
   double time_period;
-  pthread_mutex_unlock(&load_to_trolley);
-
-  if(no == 0){
-    pthread_mutex_lock(&load_to_trolley);
-  }
 
   for(int i = 0 ; i < n ; ++i){
     pthread_mutex_lock(&load_mutex);
@@ -215,6 +219,10 @@ void * trolley_fun(void* arg){
   cur_capacity=capacity;
   printf("TROLLEY %d ENDS HIS SHIFT T:%d\n",no,(int)time_period );
   fflush(stdout);
+
+    running_workers = 0;
+
+
   pthread_cond_signal(&load_cond[cur_trolley]);
   pthread_mutex_unlock(&load_mutex);
 
@@ -226,23 +234,33 @@ void * trolley_fun(void* arg){
 
 void * passenger_fun(void* arg){
   int no = *(int*)arg;
+
   double time_period;
   struct timeval passenger_time;
 
-  while(1){
+  while(running_workers){
     //wait for room
     pthread_mutex_lock(&load_to_trolley);
     //pack
-
+    if(!running_workers){
+      break;
+    }
 
     gettimeofday(&passenger_time,NULL);
+
+
     time_period = time_diff(start,passenger_time);
+
+
+
     printf("PASSENGER %d LOADING T:%d\n",no,(int) time_period );
     fflush(stdout);
 
     ++cur_capacity;
 
+
     if(who_should_press_start == cur_capacity -1 && who_should_press_start != capacity -1){
+
       pthread_mutex_unlock(&load_to_trolley);
       pthread_cond_wait(&start_cond,&start_mutex);
 
@@ -253,6 +271,7 @@ void * passenger_fun(void* arg){
       fflush(stdout);
       pthread_cond_signal(&empty_cond);
       pthread_mutex_unlock(&empty_mutex);
+
     }else{
       if(cur_capacity == capacity){
         if(who_should_press_start != capacity -1){
@@ -288,6 +307,12 @@ void * passenger_fun(void* arg){
     pthread_mutex_unlock(&trolley_mutex[cur_trolley]);
     usleep(1000);
   }
+  gettimeofday(&passenger_time,NULL);
+  time_period = time_diff(start,passenger_time);
+  pthread_mutex_unlock(&load_to_trolley);
+
+
+  printf("W %d ENDS SHIFT %d\n", no,(int)time_period );
 
   return NULL;
 }
@@ -300,6 +325,7 @@ void init_trolley(){
 }
 
 void init_passengers(){
+
   for( int i = 0 ; i < passenger_no ; ++i){
     passenger_arg[i] = i;
     pthread_create(&passenger_thread[i],NULL,passenger_fun,(void*)&passenger_arg[i]);
@@ -309,6 +335,12 @@ void init_passengers(){
 void wait_for_trolley(){
   for(int i = 0 ; i < trolley_no ; ++i){
     pthread_join(trolley_thread[i],NULL);
+  }
+}
+
+void wait_for_workers(){
+  for(int i = 0 ; i < passenger_no ; ++i){
+    pthread_join(passenger_thread[i],NULL);
   }
 }
 
@@ -331,6 +363,6 @@ int main(int argc, char** argv){
   init_passengers();
 
   wait_for_trolley();
-
+  wait_for_workers();
   return 0;
 }
