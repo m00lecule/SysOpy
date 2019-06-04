@@ -8,39 +8,16 @@
 #include <sys/socket.h>
 #include <sys/epoll.h>
 #include <signal.h>
-#define MAX_WORDS 100
-#define MAX_WORD_LEN 30
-
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <sys/epoll.h>
 #include <pthread.h>
+#include "message.h"
 
-typedef struct sockaddr sockaddr;
-typedef struct sockaddr_in sockaddr_in;
-typedef struct sockaddr_un sockaddr_un;
-typedef struct epoll_event epoll_event;
-
-typedef enum {
-   REGISTER,
-   REQUEST,
-   RESPONSE,
-   PING,
-   FAILED
-} message_type;
-
-typedef struct message {
-  message_type type;
-  int id;
-  int counter;
-  char text[4096];
-  char words[MAX_WORDS][MAX_WORD_LEN];
-  int words_counter[MAX_WORDS];
-
-} message;
 
 static pid_t child = -1;
 static int p[2];
+
 #define UNIX_PATH_MAX    108
 #define MAX_CLIENTS      16
 #define MAX_EPOLL_EVENTS 128
@@ -49,9 +26,14 @@ static int p[2];
 
 void *listener_thread(void *);
 void *input_thread(void *);
+void * ping_thread(void *);
+
+
 void handle_event(epoll_event*);
 void child_write();
 
+void register_fun(int,message*,sockaddr*);
+void response_fun(int,message*);
 void exit_handler(int);
 void exit_handler_child();
 int register_client(int, const char*);
@@ -65,12 +47,13 @@ static int client_fd[MAX_CLIENTS] = {};
 static int client_state[MAX_CLIENTS] = {};
 static char client_name[MAX_CLIENTS][USERNAME_MAX_LEN];
 static sockaddr client_address[MAX_CLIENTS];
+//static int client_ping[MAX_CLIENTS] = {};
 
 static int request = 0;
 
 int main(int argc, char **argv)
 {
-  pthread_t listener_tid, input_tid;
+  pthread_t listener_tid, input_tid; //ping_tid;
 
   if(argc != 3){
     printf("ARGS [PORT] [UNIX PORT NAME]\n");
@@ -86,10 +69,17 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  // if(pthread_create(&ping_tid, NULL, listener_thread, NULL) != 0){
+  //   return 1;
+  // }
+
   if(pthread_create(&input_tid, NULL, input_thread, NULL) != 0){
     return 1;
   }
 
+  // if(pthread_join(ping_tid, NULL) != 0){
+  //   return 1;
+  // }
 
   if(pthread_join(listener_tid, NULL) != 0){
     return 1;
@@ -111,7 +101,6 @@ void handle_event(epoll_event *event)
   int fd;
   sockaddr addr;
   socklen_t len;
-  int index = 0;
 
   fd = event->data.fd;
   len = sizeof(addr);
@@ -122,69 +111,95 @@ void handle_event(epoll_event *event)
     switch(msg.type)
     {
     case REGISTER:
-      if( (index = register_client(fd, msg.text)) >= 0){
-        memset(&msg, 0 , sizeof(message));
-        msg.type=RESPONSE;
-        client_address[index] = addr;
-        if(sendto(fd, &msg, sizeof(msg),0 , &addr,sizeof(addr)) < 0){
-          printf("Couldnt send message to client\n" );
-          fflush(stdout);
-        }
-
-        printf("REGISTERED CLIENT %s\n",client_name[index]);
-        fflush(stdout);
-      }else{
-        memset(&msg, 0 , sizeof(message));
-        msg.type=FAILED;
-        if(sendto(fd, &msg, sizeof(msg), 0 , &addr, sizeof(addr)) < 0){
-          printf("Couldnt send message to client\n" );
-          fflush(stdout);
-        }
-      }
-
+      register_fun(fd,&msg,&addr);
       break;
     case RESPONSE:
-      printf("RESPONSE %d\n", msg.id);
-      printf("Words: %d\n", msg.counter);
-
-
-      fflush(stdout);
-      for(int i = 0 ; i < MAX_WORDS ; ++i){
-          if(msg.words_counter[i] == 0){
-          break;
-          }
-
-
-        printf("%s : %d \n",msg.words[i],msg.words_counter[i] );
-        fflush(stdout);
-      }
-
-      for(int i=0; i < MAX_CLIENTS; i++)
-      {
-        if(client_fd[i] == fd)
-          {
-            printf("--------------- \nFROM:%s\n",client_name[i]);
-            client_state[i] = 0;
-            break; }
-      }
-
+      response_fun(fd,&msg);
       break;
+    case EXIT:
+      for( int i = 0 ; i < MAX_CLIENTS ; ++i){
+        if(client_fd[i] == fd){
+          client_fd[i] = client_state[i] = 0;
+          printf("CLIENT IS NOT RESPONDING %s\n",client_name[i]);
+          client_name[i][0] = '\0';
+          break;
+        }
+      }
+      break;
+    // case PONG:
+    //   for( int i = 0 ; i < MAX_CLIENTS ; ++i){
+    //     if(client_fd[i] == fd){
+    //       client_ping[i] = 0;
+    //       break;
+    //     }
+    //   }
+    //   break;
     default:
       break;
+    }
+  }
+
+  usleep(500);
+}
+
+void register_fun(int fd , message * msg, sockaddr* addr){
+  int index;
+  if( (index = register_client(fd, msg->text)) >= 0){
+    memset(msg, 0 , sizeof(message));
+    msg->type=RESPONSE;
+    client_address[index] = *addr;
+    if(sendto(fd, msg, sizeof(*msg),0 , addr,sizeof(*addr)) < 0){
+      printf("Couldnt send message to client\n" );
+      fflush(stdout);
+    }
+
+    printf("REGISTERED CLIENT %s\n",client_name[index]);
+    fflush(stdout);
+  }else{
+    memset(msg, 0 , sizeof(message));
+    msg->type=FAILED;
+    if(sendto(fd, msg, sizeof(*msg), 0 , addr, sizeof(*addr)) < 0){
+      printf("Couldnt send message to client\n" );
+      fflush(stdout);
     }
   }
 }
 
 
+void response_fun(int fd,message * msg){
+  printf("RESPONSE %d\n", msg->id);
+  printf("Words: %d\n", msg->counter);
+
+
+  fflush(stdout);
+  for(int i = 0 ; i < MAX_WORDS ; ++i){
+      if(msg->words_counter[i] == 0){
+      break;
+      }
+
+
+    printf("%s : %d \n",msg->words[i],msg->words_counter[i] );
+    fflush(stdout);
+  }
+
+  for(int i=0; i < MAX_CLIENTS; i++)
+  {
+    if(client_fd[i] == fd)
+      {
+        printf("--------------- \nFROM:%s\n",client_name[i]);
+        client_state[i] = 0;
+        break; }
+  }
+}
+
 void *listener_thread(void *arg)
 {
-  int inet_fd, unix_fd, cli_fd;
-  sockaddr_in inet_addr, inet_cli;
-  sockaddr_un unix_addr, unix_cli;
-  socklen_t addr_len = sizeof(sockaddr);
+  int inet_fd, unix_fd;
+  sockaddr_in inet_addr;
+  sockaddr_un unix_addr;
   int flags;
 
-  int epoll_fd, event_count;
+  int event_count, epoll_fd;
   epoll_event events[MAX_EPOLL_EVENTS];
 
   if((inet_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1){
@@ -258,23 +273,8 @@ void *listener_thread(void *arg)
   while(RUNNING){
     event_count = epoll_wait(epoll_fd, events, MAX_EPOLL_EVENTS, 0);
 
-    for(int i = 0; i < event_count; i++)
+    for(int i = 0; i < event_count; ++i)
       handle_event(&events[i]);
-
-    // for(int i=0; i<MAX_CLIENTS; i++)
-    // {
-    //   if(client_fd[i] == 0)
-    //     continue;
-    //
-    //   msg_ping.type = PING;
-    //   if(sendto(client_fd[i], &msg_ping, sizeof(msg_ping), 0 , client_addr[i],sizeof(sockaddr)) < 0)
-    //   {
-    //     printf("CLIENT: %s IS NOT RESPONDING\n", client_name[i]);
-    //     fflush(stdout);
-    //     client_fd[i] = client_state[i] = 0;
-    //     client_name[i][0] = '\0';
-    //   }
-    // }
   }
 
   close(inet_fd);
@@ -284,6 +284,41 @@ void *listener_thread(void *arg)
 
   return NULL;
 }
+
+// void * ping_thread(void * arg){
+//   message msg_ping;
+//   int event_count = 0;
+//   memset(&msg_ping,0,sizeof(message));
+//   epoll_event events[MAX_EPOLL_EVENTS];
+//
+//
+//   while(RUNNING){
+//     for(int j = 0 ; j < 3; ++j)
+//       for(int i = 0 ; i < MAX_CLIENTS ; ++i){
+//         if(client_fd[i] != 0){
+//           sendto(client_fd[i],&msg_ping,sizeof(message),0,&client_address[i],sizeof(sockaddr));
+//           client_ping[i] = 1;
+//         }
+//       }
+//
+//     event_count = epoll_wait(epoll_fd, events, MAX_EPOLL_EVENTS, 1000);
+//
+//     for(int i = 0; i < event_count; ++i)
+//       handle_event(&events[i]);
+//
+//     for(int i = 0 ; i < MAX_CLIENTS ; ++i){
+//       if(client_ping[i] == 1){
+//         client_fd[i] = client_state[i] = 0;
+//         printf("CLIENT IS NOT RESPONDING %s\n",client_name[i]);
+//         client_name[i][0] = '\0';
+//         client_ping[i]=0;
+//       }
+//     }
+//     sleep(5);
+//   }
+//
+//   return NULL;
+// }
 
 void *input_thread(void *arg)
 {
@@ -331,8 +366,9 @@ void *input_thread(void *arg)
       cli_idx = -1;
 
       for(int i=0; i<MAX_CLIENTS; i++){
-        if(client_fd[i] == 0)
-          { continue; }
+        if(client_fd[i] == 0){
+           continue;
+         }
 
         cli_idx = i;
         if(!client_state[i])
@@ -364,6 +400,7 @@ void *input_thread(void *arg)
 void exit_handler(int sig)
 {
   close(p[0]);
+  unlink(UNIX_PATH);
 
   if(child!=-1){
     kill(SIGKILL,child);

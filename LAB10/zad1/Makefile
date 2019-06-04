@@ -4,11 +4,11 @@ all: server client
 
 
 server:
-	$(CC) server.c -o server -lpthread
+	$(CC) server.c message.h -o server -lpthread
 
 
 client:
-	$(CC) client.c -o client -lpthread
+	$(CC) client.c message.h -o client -lpthread
 
 
 clean:

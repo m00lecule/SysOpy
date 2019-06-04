@@ -8,36 +8,11 @@
 #include <sys/socket.h>
 #include <sys/epoll.h>
 #include <signal.h>
-#define MAX_WORDS 100
-#define MAX_WORD_LEN 30
-
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <sys/epoll.h>
 #include <pthread.h>
-
-typedef struct sockaddr sockaddr;
-typedef struct sockaddr_in sockaddr_in;
-typedef struct sockaddr_un sockaddr_un;
-typedef struct epoll_event epoll_event;
-
-typedef enum {
-   REGISTER,
-   REQUEST,
-   RESPONSE,
-   PING,
-   FAILED
-} message_type;
-
-typedef struct message {
-  message_type type;
-  int id;
-  int counter;
-  char text[4096];
-  char words[MAX_WORDS][MAX_WORD_LEN];
-  int words_counter[MAX_WORDS];
-
-} message;
+#include "message.h"
 
 static pid_t child = -1;
 static int p[2];

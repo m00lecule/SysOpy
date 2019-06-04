@@ -6,52 +6,27 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
-#define MAX_WORDS 100
-#define MAX_WORD_LEN 30
-
+#include <signal.h>
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <sys/epoll.h>
 #include <pthread.h>
+#include "message.h"
 
-typedef struct sockaddr sockaddr;
-typedef struct sockaddr_in sockaddr_in;
-typedef struct sockaddr_un sockaddr_un;
-typedef struct epoll_event epoll_event;
-
-typedef enum {
-   REGISTER,
-   REQUEST,
-   RESPONSE,
-   PING,
-   FAILED
-} message_type;
-
-typedef struct message {
-  message_type type;
-  int id;
-  int counter;
-  char text[4096];
-  char words[MAX_WORDS][MAX_WORD_LEN];
-  int words_counter[MAX_WORDS];
-} message;
-
-
-int connect_unix(const char*);
-int connect_inet(int,const char*);
+int init_unix(const char*);
+int init_inet(int,const char*);
 int client_loop(int, const char*);
 void exit_fun();
-int sock_fd;
-char cli_name[15] = {"/tmp/xd"};
+int sock_fd = -1;
+char cli_name[15] = {"/tmp/"};
 
 int main(int argc, char **argv)
 {
   char *hostname, *address;
 
-  atexit(exit_fun);
-  //
-  // sprintf(&cli_name[5],"%s",getpid());
+  //atexit(exit_fun);
+  signal(SIGINT,exit_fun);
+  sprintf(&cli_name[5],"%d",getpid());
 
   if(argc != 4 && argc != 5){
     printf("ARGS: [NAME] [INET/UNIX] [NAME / (PORT IP)]\n");
@@ -62,9 +37,9 @@ int main(int argc, char **argv)
   address  = argv[3];
   if(strcmp(argv[2], "INET") == 0){
     int port = atoi(address);
-    sock_fd = connect_inet(port,argv[4]);
+    sock_fd = init_inet(port,argv[4]);
   }else if(strcmp(argv[2], "UNIX") == 0){
-    sock_fd = connect_unix(address);
+    sock_fd = init_unix(address);
     }else{
     printf("ARGS: [NAME] [INET/UNIX] [NAME / (PORT IP)]\n");
     return 1;
@@ -94,11 +69,7 @@ int main(int argc, char **argv)
      if(read(sock_fd, &msg, sizeof(msg)) < 0)
        { continue; }
 
-     switch(msg.type)
-     {
-     case PING:
-       break;
-
+     switch(msg.type){
      case REQUEST:
 
        printf("GOT REQUEST\n");
@@ -107,11 +78,8 @@ int main(int argc, char **argv)
          msg.words[i][0]='\0';
        }
 
-       printf("TEXT: %s\n",msg.text );
-
        msg.counter = 0;
        char* token;
-
 
        token = strtok(msg.text,delim);
 
@@ -147,6 +115,11 @@ int main(int argc, char **argv)
        if(send(sock_fd, &msg, sizeof(message), 0) < 0)
          { printf("[SEND] ERROR\n"); }
        break;
+
+    case PING:
+      msg.type=PONG;
+      send(sock_fd,&msg,sizeof(message),0);
+      break;
      default:
        break;
      }
@@ -159,11 +132,17 @@ int main(int argc, char **argv)
 }
 
 void exit_fun(){
+  printf("exiting\n");
+    message msg;
+    memset(&msg,0,sizeof(message));
+    msg.type=EXIT;
+    send(sock_fd,&msg,sizeof(message),0);
   close(sock_fd);
+  exit(1);
 }
 
 
-int connect_unix(const char * sockpath)
+int init_unix(const char * sockpath)
 {
   int sock_fd;
   sockaddr_un client_addr, server_addr;
@@ -197,7 +176,7 @@ int connect_unix(const char * sockpath)
 }
 
 
-int connect_inet(int port,const char * ip)
+int init_inet(int port,const char * ip)
 {
   int sock_fd;
   sockaddr_in server_addr;

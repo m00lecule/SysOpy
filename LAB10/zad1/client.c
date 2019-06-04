@@ -6,52 +6,28 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
-#define MAX_WORDS 100
-#define MAX_WORD_LEN 30
-
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <sys/epoll.h>
 #include <pthread.h>
+#include <signal.h>
+#include "message.h"
 
-typedef struct sockaddr sockaddr;
-typedef struct sockaddr_in sockaddr_in;
-typedef struct sockaddr_un sockaddr_un;
-typedef struct epoll_event epoll_event;
-
-typedef enum {
-   REGISTER,
-   REQUEST,
-   RESPONSE,
-   PING,
-   FAILED
-} message_type;
-
-typedef struct message {
-  message_type type;
-  int id;
-  int counter;
-  char text[4096];
-  char words[MAX_WORDS][MAX_WORD_LEN];
-  int words_counter[MAX_WORDS];
-} message;
-
-
-int connect_unix(const char*);
-int connect_inet(int,const char*);
+int init_unix(const char*);
+int init_inet(int,const char*);
 int client_loop(int, const char*);
 void exit_fun();
+void signal_fun(){
+  exit(1);
+}
 int sock_fd;
-//char cli_name[15] = {"/tmp/"};
 
 int main(int argc, char **argv)
 {
   char *hostname, *address;
 
   atexit(exit_fun);
-  //
-  // sprintf(&cli_name[5],"%s",getpid());
+  signal(SIGINT,signal_fun);
 
   if(argc != 4 && argc != 5){
     printf("ARGS: [NAME] [INET/UNIX] [NAME / (PORT IP)]\n");
@@ -62,9 +38,9 @@ int main(int argc, char **argv)
   address  = argv[3];
   if(strcmp(argv[2], "INET") == 0){
     int port = atoi(address);
-    sock_fd = connect_inet(port,argv[4]);
+    sock_fd = init_inet(port,argv[4]);
   }else if(strcmp(argv[2], "UNIX") == 0){
-    sock_fd = connect_unix(address);
+    sock_fd = init_unix(address);
     }else{
     printf("ARGS: [NAME] [INET/UNIX] [NAME / (PORT IP)]\n");
     return 1;
@@ -100,15 +76,10 @@ int main(int argc, char **argv)
        break;
 
      case REQUEST:
-
-       printf("GOT REQUEST\n");
        for(int i = 0 ; i < MAX_WORDS ; ++i){
          msg.words_counter[i]=0;
          msg.words[i][0]='\0';
        }
-
-       printf("TEXT: %s\n",msg.text );
-
        msg.counter = 0;
        char* token;
 
@@ -142,8 +113,6 @@ int main(int argc, char **argv)
 
        printf("COUNTED WORDS %d \n",msg.counter);
        msg.type = RESPONSE;
-       printf("TEXT: %s\n",msg.text );
-
        if(send(sock_fd, &msg, sizeof(message), 0) < 0)
          { printf("[SEND] ERROR\n"); }
        break;
@@ -163,10 +132,10 @@ void exit_fun(){
 }
 
 
-int connect_unix(const char * sockpath)
+int init_unix(const char * sockpath)
 {
   int sock_fd;
-  sockaddr_un client_addr, server_addr;
+  sockaddr_un server_addr;
 
   sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
   if (sock_fd == -1)
@@ -189,7 +158,7 @@ int connect_unix(const char * sockpath)
 }
 
 
-int connect_inet(int port,const char * ip)
+int init_inet(int port,const char * ip)
 {
   int sock_fd;
   sockaddr_in server_addr;
